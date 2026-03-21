@@ -8,7 +8,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=4">
+    
+    <!-- Open Graph / Meta -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Окулярна майстерня ОПТИКА — Преміальні окуляри">
+    <meta property="og:description" content="Майстерня оптики вищого класу. Створюємо ідеальний погляд з турботою про ваш зір.">
+    <meta property="og:image" content="assets/hero.png">
+    <meta name="theme-color" content="#05050A">
 </head>
 <body>
     <!-- Background Glow Effects -->
@@ -135,8 +142,28 @@
         </div>
     </section>
 
-    <!-- Features Section / About -->
-    <section id="about" class="features">
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container about-grid">
+            <div class="about-image fade-in">
+                <div class="image-glow"></div>
+                <img src="assets/product2.png" alt="Про нас" class="about-img">
+            </div>
+            <div class="about-text fade-in-right">
+                <h2>Майстерня, де <span class="text-gradient">народжується стиль</span></h2>
+                <p>Ми не просто продаємо окуляри — ми створюємо ваш індивідуальний образ. Більше 10 років ми працюємо над тим, щоб кожен наш клієнт бачив світ у всіх його деталях.</p>
+                <ul class="about-stats">
+                    <li><strong>10+</strong> років досвіду</li>
+                    <li><strong>5000+</strong> задоволених клієнтів</li>
+                    <li><strong>100%</strong> якість лінз</li>
+                </ul>
+                <a href="#contact" class="btn btn-primary">Зв'язатись з майстром</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
         <div class="container features-grid">
             <div class="feature-card fade-in">
                 <div class="feature-icon">👁️</div>
@@ -206,6 +233,12 @@
         </div>
     </footer>
 
-    <script src="script.js?v=3"></script>
+    <!-- Floating Mobile Button -->
+    <a href="tel:0975000302" class="floating-cta">
+        <span class="pulse"></span>
+        <span class="icon">📞</span>
+    </a>
+
+    <script src="script.js?v=4"></script>
 </body>
 </html>
