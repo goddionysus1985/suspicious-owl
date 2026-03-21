@@ -45,6 +45,7 @@ body {
     background: var(--accent-glow);
     top: -200px;
     left: -200px;
+    animation: floatGlow 10s ease-in-out infinite alternate;
 }
 
 .glow-2 {
@@ -54,6 +55,13 @@ body {
     bottom: -100px;
     right: -200px;
     opacity: 0.3;
+    animation: floatGlow 12s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes floatGlow {
+    0% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+    50% { transform: translate(50px, 30px) scale(1.1); opacity: 0.6; }
+    100% { transform: translate(-30px, -50px) scale(0.95); opacity: 0.4; }
 }
 
 .container {
@@ -64,10 +72,16 @@ body {
 
 /* Utilities */
 .text-gradient {
-    background: linear-gradient(135deg, var(--accent-glow-alt), var(--accent-glow));
+    background: linear-gradient(135deg, var(--accent-glow-alt) 0%, var(--accent-glow) 50%, #FF007F 100%);
+    background-size: 200% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    animation: gradientTextGlow 3s linear infinite;
+}
+
+@keyframes gradientTextGlow {
+    to { background-position: 200% center; }
 }
 
 .btn {
@@ -91,7 +105,8 @@ body {
 
 .btn-primary:hover {
     transform: translateY(-3px);
-    box-shadow: 0 5px 25px rgba(138, 43, 226, 0.7);
+    box-shadow: 0 5px 30px rgba(138, 43, 226, 0.8), 0 0 15px var(--accent-glow-alt);
+    background: linear-gradient(135deg, var(--accent-glow-alt), #5D1AA6);
 }
 
 .btn-secondary {
@@ -288,14 +303,16 @@ body {
     border: 1px solid var(--border-color);
     border-radius: 20px;
     overflow: hidden;
-    transition: var(--transition);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease, border-color 0.3s ease;
     backdrop-filter: blur(10px);
+    transform-style: preserve-3d;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
 }
 
 .product-card:hover {
     transform: translateY(-10px);
-    border-color: rgba(0, 255, 255, 0.3);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 255, 255, 0.1);
+    border-color: rgba(0, 255, 255, 0.5);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 255, 255, 0.15), inset 0 0 20px rgba(255,255,255,0.05);
 }
 
 .product-img-container {
