@@ -123,7 +123,7 @@ async function checkAdminToken() {
 function showDashboard() {
     loginOverlay.classList.remove('active');
     dashboard.style.display = 'flex';
-    loadProducts(); // Load default tab
+    loadDashboard(); // Load default tab
 }
 
 function logout() {
@@ -144,9 +144,16 @@ tabBtns.forEach(btn => {
         const targetTab = document.getElementById(`${tabId}-tab`);
         if (targetTab) targetTab.style.display = 'block';
 
+        if (tabId === 'dashboard') loadDashboard();
         if (tabId === 'products') loadProducts();
         if (tabId === 'orders') loadOrders();
         if (tabId === 'users') loadUsers();
+        if (tabId === 'reviews') loadReviews();
+        if (tabId === 'coupons') loadCoupons();
+        if (tabId === 'banners') loadBanners();
+        if (tabId === 'pages') loadPages();
+        if (tabId === 'logs') loadLogs();
+        if (tabId === 'settings') loadSettings();
         if (tabId === 'support') {
             loadChats();
             startSupportPolling();
@@ -187,7 +194,10 @@ function renderProducts(products) {
             <td><strong>${p.name}</strong><br><small style="color:var(--text-secondary)">${p.slug}</small></td>
             <td>${p.price} ₴ ${p.discount_price ? `<br><small style="color:var(--accent-glow-alt)">${p.discount_price} ₴</small>` : ''}</td>
             <td>${p.category || '-'}</td>
-            <td>${p.in_stock ? '<span class="status-pill status-in-stock">Є в наявності</span>' : '<span class="status-pill status-out-of-stock">Немає</span>'}</td>
+            <td>
+                ${p.in_stock ? '<span class="status-pill status-in-stock">Є в наявності</span>' : '<span class="status-pill status-out-of-stock">Немає</span>'}
+                <br><small style="color:var(--text-secondary)">К-сть: ${p.stock_quantity || 0}</small>
+            </td>
             <td>
                 <div class="action-btns">
                     <button class="btn-edit" onclick="editProduct(${p.id})">✏️</button>
@@ -225,6 +235,7 @@ async function editProduct(id) {
     document.getElementById('prod-desc').value = p.description || '';
     document.getElementById('prod-stock').checked = p.in_stock === 1;
     document.getElementById('prod-featured').checked = p.featured === 1;
+    document.getElementById('prod-quantity').value = p.stock_quantity || 0;
 
     // Show existing images
     const imgContainer = document.getElementById('prod-existing-images');
@@ -258,6 +269,7 @@ prodForm.addEventListener('submit', async (e) => {
     formData.append('description', document.getElementById('prod-desc').value);
     formData.append('in_stock', document.getElementById('prod-stock').checked ? 1 : 0);
     formData.append('featured', document.getElementById('prod-featured').checked ? 1 : 0);
+    formData.append('stock_quantity', document.getElementById('prod-quantity').value);
     
     // Existing images
     const existingImgs = document.querySelectorAll('input[name="existing_images"]');
@@ -600,6 +612,334 @@ function stopSupportPolling() {
         clearInterval(supportPollingInterval);
         supportPollingInterval = null;
     }
+}
+
+// --- Dashboard Logic ---
+let salesChart = null;
+
+async function loadDashboard() {
+    try {
+        const stats = await apiFetch('/analytics/stats');
+        
+        // Update summary cards
+        document.getElementById('dash-total-products').textContent = stats.summary.totalProducts;
+        document.getElementById('dash-total-stock').textContent = stats.summary.totalProducts - stats.summary.outOfStock;
+        document.getElementById('dash-total-orders').textContent = stats.summary.totalOrders;
+        document.getElementById('dash-total-revenue').textContent = `${stats.summary.revenue.toLocaleString()} ₴`;
+
+        // Render Top Products
+        const topList = document.getElementById('top-products-list');
+        topList.innerHTML = stats.topProducts.map(p => `
+            <div class="top-item">
+                <div class="top-item-info">${p.name}</div>
+                <div class="top-item-count">${p.sold_count} шт</div>
+            </div>
+        `).join('') || '<div class="chat-placeholder">Немає продажів</div>';
+
+        renderSalesChart(stats.salesByDay);
+    } catch (e) {
+        showToast(e.message, true);
+    }
+}
+
+function renderSalesChart(data) {
+    const canvas = document.getElementById('sales-chart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    if (salesChart) {
+        salesChart.destroy();
+    }
+
+    const labels = data.map(d => d.date);
+    const values = data.map(d => d.total);
+
+    salesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Продажі (₴)',
+                data: values,
+                borderColor: '#8a2be2',
+                backgroundColor: 'rgba(138, 43, 226, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: '#00ffff',
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    ticks: { color: '#888' }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#888' }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+}
+
+// --- Settings Logic ---
+const settingsForm = document.getElementById('settings-form');
+
+async function loadSettings() {
+    try {
+        const settings = await apiFetch('/settings');
+        for (const [key, value] of Object.entries(settings)) {
+            const input = settingsForm.querySelector(`[name="${key}"]`);
+            if (input) input.value = value;
+        }
+    } catch (e) {
+        showToast(e.message, true);
+    }
+}
+
+if (settingsForm) {
+    settingsForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(settingsForm);
+        const data = {};
+        formData.forEach((value, key) => data[key] = value);
+
+        try {
+            await apiFetch('/settings', {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+            showToast('Налаштування збережено');
+        } catch (e) {
+            showToast(e.message, true);
+        }
+    });
+}
+
+// --- Coupons Logic ---
+const couponTbody = document.getElementById('admin-coupons-tbody');
+const couponModal = document.getElementById('coupon-modal');
+const couponForm = document.getElementById('coupon-form');
+
+async function loadCoupons() {
+    try {
+        const coupons = await apiFetch('/coupons');
+        couponTbody.innerHTML = '';
+        coupons.forEach(c => {
+            const tr = document.createElement('tr');
+            const expiry = c.expires_at ? new Date(c.expires_at).toLocaleDateString() : 'Безлімітно';
+            tr.innerHTML = `
+                <td><strong>${c.code}</strong></td>
+                <td>${c.discount_type === 'percent' ? 'Відсоток' : 'Фіксована'}</td>
+                <td>${c.discount_value}${c.discount_type === 'percent' ? '%' : ' ₴'}</td>
+                <td>${c.min_order_amount} ₴</td>
+                <td>${expiry}</td>
+                <td>
+                    <button class="btn-delete" onclick="deleteCoupon(${c.id})">🗑️</button>
+                </td>
+            `;
+            couponTbody.appendChild(tr);
+        });
+    } catch (e) {
+        showToast(e.message, true);
+    }
+}
+
+document.getElementById('add-coupon-btn').addEventListener('click', () => {
+    couponForm.reset();
+    couponModal.classList.add('active');
+});
+
+document.getElementById('coupon-modal-close').addEventListener('click', () => {
+    couponModal.classList.remove('active');
+});
+
+couponForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = {
+        code: document.getElementById('coupon-code').value,
+        discount_type: document.getElementById('coupon-type').value,
+        discount_value: parseFloat(document.getElementById('coupon-value').value),
+        min_order_amount: parseFloat(document.getElementById('coupon-min').value),
+        expires_at: document.getElementById('coupon-expiry').value || null
+    };
+
+    try {
+        await apiFetch('/coupons', { method: 'POST', body: JSON.stringify(data) });
+        showToast('Купон створено');
+        couponModal.classList.remove('active');
+        loadCoupons();
+    } catch (e) {
+        showToast(e.message, true);
+    }
+});
+
+async function deleteCoupon(id) {
+    if (!confirm('Видалити цей купон?')) return;
+    try {
+        await apiFetch(`/coupons/${id}`, { method: 'DELETE' });
+        showToast('Купон видалено');
+        loadCoupons();
+    } catch (e) {
+        showToast(e.message, true);
+    }
+}
+
+// --- Reviews Logic ---
+const reviewsTbody = document.getElementById('admin-reviews-tbody');
+
+async function loadReviews() {
+    try {
+        const reviews = await apiFetch('/reviews/admin/all');
+        reviewsTbody.innerHTML = '';
+        reviews.forEach(r => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${r.user_name}</td>
+                <td>${r.product_name}</td>
+                <td>${'⭐'.repeat(r.rating)}</td>
+                <td style="max-width:300px; font-size:0.85rem;">${r.comment}</td>
+                <td>
+                    ${r.is_approved ? '<span class="badge badge-success">Схвалено</span>' : '<span class="badge">В очікуванні</span>'}
+                </td>
+                <td>
+                    ${!r.is_approved ? `<button class="btn-check" onclick="approveReview(${r.id})">✅</button>` : ''}
+                    <button class="btn-delete" onclick="deleteReview(${r.id})">🗑️</button>
+                </td>
+            `;
+            reviewsTbody.appendChild(tr);
+        });
+    } catch (e) {
+        showToast(e.message, true);
+    }
+}
+
+async function approveReview(id) {
+    try {
+        await apiFetch(`/reviews/${id}/approve`, { method: 'PUT' });
+        showToast('Відгук схвалено');
+        loadReviews();
+    } catch (e) {
+        showToast(e.message, true);
+    }
+}
+
+async function deleteReview(id) {
+    if (!confirm('Видалити цей відгук?')) return;
+    try {
+        await apiFetch(`/reviews/${id}`, { method: 'DELETE' });
+        showToast('Відгук видалено');
+        loadReviews();
+    } catch (e) {
+        showToast(e.message, true);
+    }
+}
+
+// --- Banners Logic ---
+const bannersGrid = document.getElementById('admin-banners-grid');
+const bannerModal = document.getElementById('banner-modal');
+const bannerForm = document.getElementById('banner-form');
+
+async function loadBanners() {
+    try {
+        const banners = await apiFetch('/cms/banners');
+        bannersGrid.innerHTML = banners.map(b => `
+            <div class="glass-card" style="padding:1rem; position:relative;">
+                <img src="${b.image}" style="width:100%; border-radius:10px; margin-bottom:1rem;">
+                <h4>${b.title || 'Без заголовка'}</h4>
+                <p style="font-size:0.8rem; color:#888;">${b.link || '#'}</p>
+                <button class="btn-delete" onclick="deleteBanner(${b.id})" style="position:absolute; top:10px; right:10px; background:rgba(255,0,0,0.5);">🗑️</button>
+            </div>
+        `).join('') || '<div class="chat-placeholder">Немає банерів</div>';
+    } catch (e) { showToast(e.message, true); }
+}
+
+document.getElementById('add-banner-btn')?.addEventListener('click', () => {
+    bannerForm.reset();
+    bannerModal.classList.add('active');
+});
+
+document.getElementById('banner-modal-close')?.addEventListener('click', () => {
+    bannerModal.classList.remove('active');
+});
+
+bannerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append('image', document.getElementById('banner-image').files[0]);
+    formData.append('title', document.getElementById('banner-title').value);
+    formData.append('link', document.getElementById('banner-link').value);
+
+    try {
+        await apiFetch('/cms/banners', { method: 'POST', body: formData });
+        showToast('Банер додано');
+        bannerModal.classList.remove('active');
+        loadBanners();
+    } catch (e) { showToast(e.message, true); }
+});
+
+async function deleteBanner(id) {
+    if (!confirm('Видалити цей банер?')) return;
+    try {
+        await apiFetch(`/cms/banners/${id}`, { method: 'DELETE' });
+        showToast('Банер видалено');
+        loadBanners();
+    } catch (e) { showToast(e.message, true); }
+}
+
+// --- Pages Logic ---
+const pageSelector = document.getElementById('page-selector');
+const pageTitle = document.getElementById('page-title');
+const pageContent = document.getElementById('page-content');
+
+async function loadPages() {
+    const slug = pageSelector.value;
+    try {
+        const page = await apiFetch(`/cms/pages/${slug}`);
+        pageTitle.value = page.title;
+        pageContent.value = page.content;
+    } catch (e) { showToast(e.message, true); }
+}
+
+pageSelector?.addEventListener('change', loadPages);
+
+document.getElementById('save-page-btn')?.addEventListener('click', async () => {
+    const data = {
+        slug: pageSelector.value,
+        title: pageTitle.value,
+        content: pageContent.value
+    };
+    try {
+        await apiFetch('/cms/pages', { method: 'POST', body: JSON.stringify(data) });
+        showToast('Сторінку збережено');
+    } catch (e) { showToast(e.message, true); }
+});
+
+// --- Logs Logic ---
+const logsTbody = document.getElementById('admin-logs-tbody');
+
+async function loadLogs() {
+    try {
+        const logs = await apiFetch('/logs');
+        logsTbody.innerHTML = logs.map(l => `
+            <tr>
+                <td style="font-size:0.8rem;">${new Date(l.created_at).toLocaleString()}</td>
+                <td>${l.admin_name || 'System'}</td>
+                <td><span class="badge">${l.action}</span></td>
+                <td>${l.target_type} #${l.target_id || ''}</td>
+                <td style="font-size:0.8rem; color:#888;">${l.details || ''}</td>
+            </tr>
+        `).join('') || '<tr><td colspan="5" style="text-align:center;">Логи відсутні</td></tr>';
+    } catch (e) { showToast(e.message, true); }
 }
 
 // Init

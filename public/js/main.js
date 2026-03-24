@@ -197,6 +197,27 @@ document.addEventListener('DOMContentLoaded', () => {
         syncHomeStock();
     }
 
+    let appliedPromo = null;
+
+    document.getElementById('apply-promo-btn')?.addEventListener('click', async () => {
+        const promoInput = document.getElementById('checkout-promo');
+        const statusEl = document.getElementById('promo-status');
+        const code = promoInput.value.trim().toUpperCase();
+        
+        if (!code) return;
+
+        try {
+            const coupon = await window.opticaApi.validateCoupon(code);
+            appliedPromo = code;
+            statusEl.style.color = '#00ffff';
+            statusEl.textContent = `Застосовано: -${coupon.discount_value}${coupon.discount_type === 'percent' ? '%' : ' ₴'}`;
+            promoInput.disabled = true;
+        } catch (err) {
+            statusEl.style.color = '#ff4040';
+            statusEl.textContent = 'Недійсний промокод';
+        }
+    });
+
     const checkoutForm = document.getElementById('checkout-form');
     checkoutForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -212,11 +233,11 @@ document.addEventListener('DOMContentLoaded', () => {
             delivery_city: city,
             delivery_warehouse: warehouse,
             payment_method: paymentMethod,
+            promo_code: appliedPromo,
             items: [{
                 product_id: currentCheckoutProduct.id,
                 quantity: 1,
                 price_at_purchase: currentCheckoutProduct.price,
-                // If user chose 'saved', the backend will automatically use the current vision data
                 use_saved_vision: visionChoice === 'saved'
             }]
         };
@@ -225,6 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await window.opticaApi.createOrder(orderData);
             window.showToast(`Замовлення #${res.orderId} прийнято! Дякуємо! 🛍️`);
             closeModal('buy-modal');
+            appliedPromo = null;
             setTimeout(() => {
                 window.location.href = '/cabinet.html';
             }, 1500);

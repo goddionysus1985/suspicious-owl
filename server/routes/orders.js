@@ -2,6 +2,7 @@ const express = require('express');
 const Database = require('better-sqlite3');
 const config = require('../config');
 const { verifyToken, verifyAdmin } = require('../middleware/auth');
+const { auditLog } = require('../middleware/audit');
 
 const router = express.Router();
 const db = new Database(config.dbPath);
@@ -9,17 +10,34 @@ const db = new Database(config.dbPath);
 // ОФОРМИТИ ЗАМОВЛЕННЯ (Для клієнта)
 router.post('/', verifyToken, (req, res) => {
     try {
-        const { items, delivery_method, delivery_city, delivery_warehouse, payment_method, notes } = req.body;
+        const { items, delivery_method, delivery_city, delivery_warehouse, payment_method, notes, promo_code } = req.body;
         
         if (!items || !items.length) {
             return res.status(400).json({ error: 'Кошик порожній' });
         }
 
+        let totalPrice = 0;
+        let discountAmount = 0;
+        let couponId = null;
+
+        // Перевірка купона
+        if (promo_code) {
+            const coupon = db.prepare(`
+                SELECT * FROM coupons 
+                WHERE code = ? AND is_active = 1 
+                AND (expires_at IS NULL OR expires_at > DATETIME('now'))
+            `).get(promo_code.toUpperCase());
+
+            if (coupon) {
+                couponId = coupon.id;
+            }
+        }
+
         // Початок транзакції
         const insertOrder = db.prepare(`
             INSERT INTO orders 
-            (user_id, total_price, delivery_method, delivery_city, delivery_warehouse, payment_method, notes) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            (user_id, total_price, discount_amount, promo_code, delivery_method, delivery_city, delivery_warehouse, payment_method, notes) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `);
         
         const insertItem = db.prepare(`
@@ -30,22 +48,37 @@ router.post('/', verifyToken, (req, res) => {
 
         const getVisionData = db.prepare('SELECT * FROM vision_data WHERE user_id = ?').get(req.user.id);
         
-        let totalPrice = 0;
-        
         const transaction = db.transaction(() => {
             // Рахуємо тотал на бекенді для безпеки
+            let subtotal = 0;
             for (let item of items) {
                 const product = db.prepare('SELECT price, discount_price FROM products WHERE id = ?').get(item.product_id);
                 if (product) {
                     const actualPrice = product.discount_price || product.price;
-                    totalPrice += actualPrice * (item.quantity || 1);
-                    item.actualPrice = actualPrice; // запам'ятаємо для збереження
+                    subtotal += actualPrice * (item.quantity || 1);
+                    item.actualPrice = actualPrice;
                 }
             }
 
+            // Apply discount
+            if (couponId) {
+                const coupon = db.prepare('SELECT * FROM coupons WHERE id = ?').get(couponId);
+                if (subtotal >= coupon.min_order_amount) {
+                    if (coupon.discount_type === 'percent') {
+                        discountAmount = subtotal * (coupon.discount_value / 100);
+                    } else {
+                        discountAmount = coupon.discount_value;
+                    }
+                }
+            }
+
+            totalPrice = Math.max(0, subtotal - discountAmount);
+
             const info = insertOrder.run(
                 req.user.id, 
-                totalPrice, 
+                totalPrice,
+                discountAmount,
+                promo_code ? promo_code.toUpperCase() : null,
                 delivery_method || 'pickup', 
                 delivery_city || null, 
                 delivery_warehouse || null, 
@@ -148,7 +181,7 @@ router.get('/', verifyAdmin, (req, res) => {
 });
 
 // ЗМІНИТИ СТАТУС АБО ТТН (Тільки Admin)
-router.put('/:id/status', verifyAdmin, (req, res) => {
+router.put('/:id/status', verifyAdmin, auditLog('UPDATE_ORDER_STATUS', 'order'), (req, res) => {
     try {
         const { status, ttn } = req.body;
         const { id } = req.params;

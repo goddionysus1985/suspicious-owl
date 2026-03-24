@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/modals.css">
     <link rel="stylesheet" href="css/responsive.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="admin-body">
     <!-- Glow Effects -->
@@ -43,10 +44,19 @@
                 <span>ОПТИКА Адмін</span>
             </div>
             <ul class="admin-menu">
-                <li><button class="tab-btn active" data-tab="products">📦 Товари</button></li>
+                <li><button class="tab-btn active" data-tab="dashboard">📊 Панель приладів</button></li>
+                <li><button class="tab-btn" data-tab="products">📦 Товари</button></li>
                 <li><button class="tab-btn" data-tab="orders">🛒 Замовлення</button></li>
                 <li><button class="tab-btn" data-tab="users">👥 Користувачі</button></li>
                 <li><button class="tab-btn" data-tab="support">💬 Підтримка</button></li>
+                <li><button class="tab-btn" data-tab="reviews">⭐ Відгуки</button></li>
+                <li><button class="tab-btn" data-tab="coupons">🎫 Купони</button></li>
+                <li class="menu-divider" style="padding: 1rem 1.5rem 0.5rem; font-size: 0.75rem; color: #555; text-transform: uppercase;">Контент</li>
+                <li><button class="tab-btn" data-tab="banners">🖼️ Банери</button></li>
+                <li><button class="tab-btn" data-tab="pages">📄 Сторінки</button></li>
+                <li class="menu-divider" style="padding: 1rem 1.5rem 0.5rem; font-size: 0.75rem; color: #555; text-transform: uppercase;">Система</li>
+                <li><button class="tab-btn" data-tab="logs">📜 Логи</button></li>
+                <li><button class="tab-btn" data-tab="settings">⚙️ Налаштування</button></li>
             </ul>
             <button id="admin-logout-btn" class="btn btn-outline" style="margin: auto 1.5rem 1.5rem 1.5rem; border-color: #FF4040; color: #FF4040;">Вийти</button>
         </aside>
@@ -55,23 +65,46 @@
             <button class="mobile-sidebar-toggle" id="mobile-sidebar-toggle">
                 <span></span><span></span><span></span>
             </button>
-            <!-- PRODUCTS TAB -->
-            <section id="products-tab" class="admin-tab active fade-in-up">
+
+            <!-- DASHBOARD TAB -->
+            <section id="dashboard-tab" class="admin-tab active fade-in-up">
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <span>Всього товарів</span>
-                        <strong id="stat-total-products">0</strong>
+                        <span>Наявність (Товари)</span>
+                        <strong id="dash-total-products">0</strong>
                     </div>
                     <div class="stat-card">
-                        <span>В наявності</span>
-                        <strong id="stat-in-stock">0</strong>
+                        <span>Склад (Залишків)</span>
+                        <strong id="dash-total-stock">0</strong>
                     </div>
                     <div class="stat-card">
                         <span>Замовлень</span>
-                        <strong id="stat-total-orders">0</strong>
+                        <strong id="dash-total-orders">0</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span>Дохід (Приблизно)</span>
+                        <strong id="dash-total-revenue">0 ₴</strong>
                     </div>
                 </div>
 
+                <div class="analytics-layout">
+                    <div class="analytics-card flex-2">
+                        <h3>📈 Продажі за останній тиждень</h3>
+                        <div id="sales-chart-container" class="chart-container">
+                            <canvas id="sales-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="analytics-card flex-1">
+                        <h3>🏆 Топ-5 Товарів</h3>
+                        <div id="top-products-list" class="top-list">
+                            <!-- JS will populate -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PRODUCTS TAB -->
+            <section id="products-tab" class="admin-tab fade-in-up" style="display: none;">
                 <div class="admin-header">
                     <h2>Управління Товарами</h2>
                     <button class="btn btn-primary" id="add-product-btn">+ Додати товар</button>
@@ -264,7 +297,251 @@
                     </div>
                 </div>
 
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label>Кількість на складі</label>
+                    <input type="number" id="prod-quantity" value="0" min="0" class="form-control">
+                </div>
+
                 <button type="submit" class="btn btn-primary full-width" style="margin-top: 1.5rem;">Зберегти товар</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <section id="settings-tab" class="admin-tab fade-in-up" style="display: none;">
+        <div class="admin-header">
+            <h2>Налаштування магазину</h2>
+        </div>
+        
+        <form id="settings-form" class="settings-grid">
+            <div class="settings-card">
+                <h3><i class="icon">🏢</i> Основна інформація</h3>
+                <div class="form-group">
+                    <label>Назва магазину</label>
+                    <input type="text" name="shop_name" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Адреса</label>
+                    <input type="text" name="address" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Години роботи</label>
+                    <input type="text" name="work_hours" class="form-control">
+                </div>
+            </div>
+
+            <div class="settings-card">
+                <h3><i class="icon">📞</i> Контакти</h3>
+                <div class="form-group">
+                    <label>Телефон 1</label>
+                    <input type="text" name="phone_1" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Телефон 2</label>
+                    <input type="text" name="phone_2" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" class="form-control">
+                </div>
+            </div>
+
+            <div class="settings-card">
+                <h3><i class="icon">📱</i> Соцмережі</h3>
+                <div class="form-group">
+                    <label>Instagram URL</label>
+                    <input type="url" name="instagram" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Facebook URL</label>
+                    <input type="url" name="facebook" class="form-control">
+                </div>
+            </div>
+
+            <div class="settings-card">
+                <h3><i class="icon">🚚</i> Нова Пошта (API)</h3>
+                <div class="form-group">
+                    <label>API Key</label>
+                    <input type="password" name="nova_poshta_api_key" class="form-control" placeholder="••••••••••••••••">
+                </div>
+                <div class="form-group">
+                    <label>Ім'я відправника (в системі НП)</label>
+                    <input type="text" name="nova_poshta_sender_name" class="form-control">
+                </div>
+            </div>
+
+            <div class="settings-actions full-width" style="grid-column: 1 / -1; margin-top: 2rem;">
+                <button type="submit" class="btn btn-primary">Зберегти всі налаштування</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Reviews Tab -->
+    <section id="reviews-tab" class="admin-tab fade-in-up" style="display: none;">
+        <div class="admin-header">
+            <h2>Управління Відгуками</h2>
+        </div>
+        
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Клієнт</th>
+                        <th>Товар</th>
+                        <th>Рейтинг</th>
+                        <th>Коментар</th>
+                        <th>Статус</th>
+                        <th>Дії</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-reviews-tbody">
+                    <!-- JS will populate -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Coupons Tab -->
+    <section id="coupons-tab" class="admin-tab fade-in-up" style="display: none;">
+        <div class="admin-header">
+            <h2>Управління Купонами</h2>
+            <button class="btn btn-primary" id="add-coupon-btn">+ Створити купон</button>
+        </div>
+        
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Код</th>
+                        <th>Тип</th>
+                        <th>Значення</th>
+                        <th>Мін. сума</th>
+                        <th>Діє до</th>
+                        <th>Дії</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-coupons-tbody">
+                    <!-- JS will populate -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Coupon Modal -->
+    <div class="modal-overlay" id="coupon-modal">
+        <div class="modal-container fade-in-up" style="max-width: 500px;">
+            <button class="modal-close" id="coupon-modal-close">&times;</button>
+            <form id="coupon-form">
+                <h3>Створити новий купон</h3>
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <label>Код купона (напр. SALE20)</label>
+                    <input type="text" id="coupon-code" required style="text-transform: uppercase;">
+                </div>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label>Тип знижки</label>
+                        <select id="coupon-type" class="form-control">
+                            <option value="percent">Відсоток (%)</option>
+                            <option value="fixed">Фіксована сума (₴)</option>
+                        </select>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Значення знижки</label>
+                        <input type="number" id="coupon-value" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Мін. сума замовлення (₴)</label>
+                    <input type="number" id="coupon-min" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Дата закінчення</label>
+                    <input type="date" id="coupon-expiry">
+                </div>
+                <button type="submit" class="btn btn-primary full-width">Зберегти купон</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Banners Tab -->
+    <section id="banners-tab" class="admin-tab fade-in-up" style="display: none;">
+        <div class="admin-header">
+            <h2>Керування Банерами</h2>
+            <button class="btn btn-primary" id="add-banner-btn">+ Додати банер</button>
+        </div>
+        <div class="banners-grid" id="admin-banners-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+            <!-- JS will populate -->
+        </div>
+    </section>
+
+    <!-- Pages Tab -->
+    <section id="pages-tab" class="admin-tab fade-in-up" style="display: none;">
+        <div class="admin-header">
+            <h2>Редактор Сторінок</h2>
+        </div>
+        <div class="pages-editor glass-card" style="padding: 2rem; background: rgba(255,255,255,0.02); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
+            <div class="form-group">
+                <label>Оберіть сторінку</label>
+                <select id="page-selector" class="form-control">
+                    <option value="about">Про нас (About Us)</option>
+                    <option value="warranty">Гарантія (Warranty)</option>
+                    <option value="contact">Контакти (Contacts Info Text)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Заголовок сторінки</label>
+                <input type="text" id="page-title" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Контент (HTML підтримується)</label>
+                <textarea id="page-content" class="form-control" style="height: 300px; font-family: monospace;"></textarea>
+            </div>
+            <button id="save-page-btn" class="btn btn-primary">Зберегти сторінку</button>
+        </div>
+    </section>
+
+    <!-- Logs Tab -->
+    <section id="logs-tab" class="admin-tab fade-in-up" style="display: none;">
+        <div class="admin-header">
+            <h2>Логи Аудиту</h2>
+        </div>
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Час</th>
+                        <th>Адмін</th>
+                        <th>Дія</th>
+                        <th>Об'єкт</th>
+                        <th>Деталі</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-logs-tbody">
+                    <!-- JS will populate -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Banner Modal -->
+    <div class="modal-overlay" id="banner-modal">
+        <div class="modal-container fade-in-up" style="max-width: 500px;">
+            <button class="modal-close" id="banner-modal-close">&times;</button>
+            <form id="banner-form">
+                <h3>Додати новий банер</h3>
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <label>Зображення</label>
+                    <input type="file" id="banner-image" accept="image/*" required>
+                </div>
+                <div class="form-group">
+                    <label>Заголовок (необов'язково)</label>
+                    <input type="text" id="banner-title" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Посилання (URL)</label>
+                    <input type="text" id="banner-link" class="form-control" placeholder="/catalog.html">
+                </div>
+                <button type="submit" class="btn btn-primary full-width">Зберегти</button>
             </form>
         </div>
     </div>

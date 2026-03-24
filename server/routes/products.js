@@ -5,6 +5,7 @@ const fs = require('fs');
 const Database = require('better-sqlite3');
 const config = require('../config');
 const { verifyAdmin } = require('../middleware/auth');
+const { auditLog } = require('../middleware/audit');
 
 const router = express.Router();
 const db = new Database(config.dbPath);
@@ -87,7 +88,7 @@ router.get('/:slug', (req, res) => {
 });
 
 // ДОДАТИ ТОВАР (Тільки Admin)
-router.post('/', verifyAdmin, upload.array('images', 5), (req, res) => {
+router.post('/', verifyAdmin, auditLog('CREATE_PRODUCT', 'product'), upload.array('images', 5), (req, res) => {
     try {
         const { name, slug, description, price, discount_price, category, brand, gender, in_stock, featured } = req.body;
         
@@ -103,8 +104,8 @@ router.post('/', verifyAdmin, upload.array('images', 5), (req, res) => {
 
         const stmt = db.prepare(`
             INSERT INTO products 
-            (name, slug, description, price, discount_price, category, brand, gender, images, in_stock, featured) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (name, slug, description, price, discount_price, category, brand, gender, images, in_stock, stock_quantity, featured) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `);
         
         const info = stmt.run(
@@ -113,6 +114,7 @@ router.post('/', verifyAdmin, upload.array('images', 5), (req, res) => {
             category || null, brand || null, gender || 'unisex', 
             JSON.stringify(imagePaths), 
             in_stock !== undefined ? in_stock : 1, 
+            Number(req.body.stock_quantity) || 0,
             featured || 0
         );
 
@@ -124,7 +126,7 @@ router.post('/', verifyAdmin, upload.array('images', 5), (req, res) => {
 });
 
 // ОНОВИТИ ТОВАР (Тільки Admin)
-router.put('/:id', verifyAdmin, upload.array('images', 5), (req, res) => {
+router.put('/:id', verifyAdmin, auditLog('UPDATE_PRODUCT', 'product'), upload.array('images', 5), (req, res) => {
     try {
         const { id } = req.params;
         const { name, slug, description, price, discount_price, category, brand, gender, in_stock, featured, existing_images } = req.body;
@@ -145,7 +147,8 @@ router.put('/:id', verifyAdmin, upload.array('images', 5), (req, res) => {
         const stmt = db.prepare(`
             UPDATE products SET 
             name = ?, slug = ?, description = ?, price = ?, discount_price = ?, 
-            category = ?, brand = ?, gender = ?, images = ?, in_stock = ?, featured = ?
+            category = ?, brand = ?, gender = ?, images = ?, in_stock = ?, 
+            stock_quantity = ?, featured = ?
             WHERE id = ?
         `);
         
@@ -155,6 +158,7 @@ router.put('/:id', verifyAdmin, upload.array('images', 5), (req, res) => {
             category || null, brand || null, gender || 'unisex', 
             JSON.stringify(finalImages), 
             in_stock !== undefined ? in_stock : 1, 
+            Number(req.body.stock_quantity) || 0,
             featured || 0,
             id
         );
@@ -167,7 +171,7 @@ router.put('/:id', verifyAdmin, upload.array('images', 5), (req, res) => {
 });
 
 // ВИДАЛИТИ ТОВАР (Тільки Admin)
-router.delete('/:id', verifyAdmin, (req, res) => {
+router.delete('/:id', verifyAdmin, auditLog('DELETE_PRODUCT', 'product'), (req, res) => {
     try {
         db.prepare('DELETE FROM products WHERE id = ?').run(req.params.id);
         res.json({ message: 'Товар видалено' });

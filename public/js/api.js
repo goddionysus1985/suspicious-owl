@@ -112,6 +112,23 @@ const api = {
 
     async getMyOrders() {
         return this.fetch('/orders/my');
+    },
+
+    // --- Coupons ---
+    async validateCoupon(code) {
+        return this.fetch(`/coupons/validate/${code}`);
+    },
+
+    // --- Reviews ---
+    async getReviews(productId) {
+        return this.fetch(`/reviews/product/${productId}`);
+    },
+
+    async createReview(productId, rating, comment) {
+        return this.fetch('/reviews', {
+            method: 'POST',
+            body: JSON.stringify({ product_id: productId, rating, comment })
+        });
     }
 };
 
