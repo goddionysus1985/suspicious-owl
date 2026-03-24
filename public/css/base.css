@@ -58,7 +58,7 @@ body {
     filter: blur(150px);
     z-index: -1;
     pointer-events: none;
-    opacity: 0.5;
+    opacity: 0.2;
 }
 
 .glow-1 {
