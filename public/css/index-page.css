@@ -63,7 +63,7 @@
     position: absolute;
     width: 80%;
     height: 80%;
-    background: var(--accent-glow);
+    background: linear-gradient(135deg, #FF8C00, #FFD700);
     filter: blur(80px);
     top: 10%;
     left: 10%;
