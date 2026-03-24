@@ -141,11 +141,18 @@ tabBtns.forEach(btn => {
         
         btn.classList.add('active');
         const tabId = btn.getAttribute('data-tab');
-        document.getElementById(`${tabId}-tab`).style.display = 'block';
+        const targetTab = document.getElementById(`${tabId}-tab`);
+        if (targetTab) targetTab.style.display = 'block';
 
         if (tabId === 'products') loadProducts();
         if (tabId === 'orders') loadOrders();
         if (tabId === 'users') loadUsers();
+        if (tabId === 'support') {
+            loadChats();
+            startSupportPolling();
+        } else {
+            stopSupportPolling();
+        }
     });
 });
 
@@ -438,6 +445,130 @@ async function loadUsers() {
         });
     } catch (e) {
         usersTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--text-secondary);">Помилка завантаження (Endpoint /api/users needed)</td></tr>`;
+    }
+}
+
+// --- Support/Chat Logic ---
+const chatList = document.getElementById('admin-chat-list');
+const chatMessages = document.getElementById('admin-chat-messages');
+const chatHeader = document.getElementById('admin-chat-header');
+const chatForm = document.getElementById('admin-chat-form');
+const chatInput = document.getElementById('admin-chat-input');
+
+let currentChatSession = null;
+let currentChatUserId = null;
+let supportPollingInterval = null;
+
+async function loadChats() {
+    try {
+        const chats = await apiFetch('/support/admin/chats');
+        if (!chatList) return;
+        
+        chatList.innerHTML = '';
+        if (!chats || chats.length === 0) {
+            chatList.innerHTML = '<div class="chat-placeholder">Немає активних діалогів</div>';
+            return;
+        }
+
+        chats.forEach(chat => {
+            const item = document.createElement('div');
+            const isActive = (chat.user_id && chat.user_id === currentChatUserId) || (!chat.user_id && chat.session_id === currentChatSession);
+            item.className = `chat-list-item ${isActive ? 'active' : ''}`;
+            
+            const name = chat.user_name || `Гість (${chat.session_id ? chat.session_id.slice(-4) : '...'})`;
+            const unread = chat.unread_count > 0 ? `<span class="unread-badge">${chat.unread_count}</span>` : '';
+            
+            item.innerHTML = `
+                <div class="chat-item-name">
+                    <span>${name}</span>
+                    ${unread}
+                </div>
+                <div class="chat-item-preview">${chat.last_message || '...'}</div>
+            `;
+
+            item.onclick = () => selectChat(chat);
+            chatList.appendChild(item);
+        });
+    } catch (e) {
+        console.error('Load chats error:', e);
+    }
+}
+
+async function selectChat(chat) {
+    currentChatSession = chat.session_id;
+    currentChatUserId = chat.user_id;
+
+    // UI Updates
+    if (chatHeader) chatHeader.style.display = 'block';
+    if (chatForm) chatForm.style.display = 'flex';
+    document.getElementById('current-chat-name').textContent = chat.user_name || 'Гість';
+    const idDisplay = chat.user_id ? `UserID: ${chat.user_id}` : `Session: ${chat.session_id ? chat.session_id.slice(-8) : ''}`;
+    document.getElementById('current-chat-id').textContent = idDisplay;
+    
+    loadMessages();
+}
+
+async function loadMessages() {
+    if (!currentChatSession && !currentChatUserId) return;
+    
+    try {
+        const url = `/support/admin/chat?session_id=${currentChatSession || ''}&user_id=${currentChatUserId || ''}`;
+        const messages = await apiFetch(url);
+        
+        if (!chatMessages) return;
+        
+        chatMessages.innerHTML = '';
+        messages.forEach(msg => {
+            const div = document.createElement('div');
+            // В админке: ответы админа справа (как пользователь в клиенте), сообщения клиента слева
+            const typeClass = msg.is_from_admin ? 'user' : 'support'; 
+            div.className = `message ${typeClass}`;
+            div.textContent = msg.message;
+            chatMessages.appendChild(div);
+        });
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    } catch (e) {
+        console.error('Load messages error:', e);
+    }
+}
+
+if (chatForm) {
+    chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const message = chatInput.value.trim();
+        if (!message || (!currentChatSession && !currentChatUserId)) return;
+
+        try {
+            await apiFetch('/support/admin/reply', {
+                method: 'POST',
+                body: JSON.stringify({
+                    message,
+                    session_id: currentChatSession,
+                    user_id: currentChatUserId
+                })
+            });
+            chatInput.value = '';
+            loadMessages();
+        } catch (e) {
+            showToast(e.message, true);
+        }
+    });
+}
+
+function startSupportPolling() {
+    stopSupportPolling();
+    supportPollingInterval = setInterval(() => {
+        loadChats();
+        if (currentChatSession || currentChatUserId) {
+            loadMessages();
+        }
+    }, 5000);
+}
+
+function stopSupportPolling() {
+    if (supportPollingInterval) {
+        clearInterval(supportPollingInterval);
+        supportPollingInterval = null;
     }
 }
 
