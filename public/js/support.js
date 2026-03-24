@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         scrollToBottom();
 
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('optica_token');
             const response = await fetch('/api/support', {
                 method: 'POST',
                 headers: {
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadMessages() {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('optica_token');
             const response = await fetch(`/api/support?session_id=${sessionId}`, {
                 headers: {
                     'Authorization': token ? `Bearer ${token}` : ''
