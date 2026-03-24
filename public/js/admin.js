@@ -183,8 +183,10 @@ function renderProducts(products) {
     prodTbody.innerHTML = '';
     
     // Update stats
-    document.getElementById('stat-total-products').textContent = products.length;
-    document.getElementById('stat-in-stock').textContent = products.filter(p => p.in_stock).length;
+    const totalEl = document.getElementById('dash-total-products');
+    const inStockEl = document.getElementById('dash-total-stock');
+    if (totalEl) totalEl.textContent = products.length;
+    if (inStockEl) inStockEl.textContent = products.filter(p => p.in_stock).length;
     
     products.forEach(p => {
         const img = (p.images && p.images.length > 0) ? p.images[0] : 'assets/logo.png';
@@ -336,7 +338,7 @@ function renderOrders(orders) {
     ordersTbody.innerHTML = '';
     
     // Update dashboard stats if we are on the stats cards
-    const orderStatEl = document.getElementById('stat-total-orders');
+    const orderStatEl = document.getElementById('dash-total-orders');
     if (orderStatEl) orderStatEl.textContent = orders.length;
 
     orders.forEach(o => {
@@ -853,11 +855,11 @@ async function loadBanners() {
     try {
         const banners = await apiFetch('/cms/banners');
         bannersGrid.innerHTML = banners.map(b => `
-            <div class="glass-card" style="padding:1rem; position:relative;">
-                <img src="${b.image}" style="width:100%; border-radius:10px; margin-bottom:1rem;">
+            <div class="banner-item">
+                <img src="${b.image}">
                 <h4>${b.title || 'Без заголовка'}</h4>
-                <p style="font-size:0.8rem; color:#888;">${b.link || '#'}</p>
-                <button class="btn-delete" onclick="deleteBanner(${b.id})" style="position:absolute; top:10px; right:10px; background:rgba(255,0,0,0.5);">🗑️</button>
+                <p style="font-size:0.8rem; color:var(--text-secondary);">${b.link || '#'}</p>
+                <button class="btn-delete" onclick="deleteBanner(${b.id})" style="position:absolute; top:10px; right:10px; background:rgba(255,64,64,0.3); backdrop-filter:blur(5px);">🗑️</button>
             </div>
         `).join('') || '<div class="chat-placeholder">Немає банерів</div>';
     } catch (e) { showToast(e.message, true); }
@@ -865,7 +867,19 @@ async function loadBanners() {
 
 document.getElementById('add-banner-btn')?.addEventListener('click', () => {
     bannerForm.reset();
+    document.getElementById('banner-preview').innerHTML = '<span style="color: var(--text-secondary); font-size: 0.9rem;">Попередній перегляд</span>';
     bannerModal.classList.add('active');
+});
+
+document.getElementById('banner-image')?.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            document.getElementById('banner-preview').innerHTML = `<img src="${event.target.result}" style="max-width:100%; max-height:100%; object-fit:contain;">`;
+        };
+        reader.readAsDataURL(file);
+    }
 });
 
 document.getElementById('banner-modal-close')?.addEventListener('click', () => {
@@ -900,17 +914,86 @@ async function deleteBanner(id) {
 const pageSelector = document.getElementById('page-selector');
 const pageTitle = document.getElementById('page-title');
 const pageContent = document.getElementById('page-content');
+const pagePreviewPane = document.getElementById('page-preview-pane');
+const templateSelector = document.getElementById('template-selector');
+
+function updatePagePreview() {
+    if (pagePreviewPane) {
+        pagePreviewPane.innerHTML = pageContent.value;
+    }
+}
 
 async function loadPages() {
     const slug = pageSelector.value;
     try {
         const page = await apiFetch(`/cms/pages/${slug}`);
-        pageTitle.value = page.title;
-        pageContent.value = page.content;
+        pageTitle.value = page.title || '';
+        pageContent.value = page.content || '';
+        updatePagePreview();
     } catch (e) { showToast(e.message, true); }
 }
 
 pageSelector?.addEventListener('change', loadPages);
+pageContent?.addEventListener('input', updatePagePreview);
+
+// Quick Insert Tags
+document.querySelectorAll('.tool-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const tag = btn.dataset.tag;
+        const start = pageContent.selectionStart;
+        const end = pageContent.selectionEnd;
+        const text = pageContent.value;
+        const before = text.substring(0, start);
+        const after = text.substring(end);
+        let insert = '';
+
+        switch(tag) {
+            case 'h2': insert = `<h2>Заголовок</h2>`; break;
+            case 'p': insert = `<p>Ваш текст тут...</p>`; break;
+            case 'strong': insert = `<strong>Важливе</strong>`; break;
+            case 'ul': insert = `<ul>\n  <li>Пункт 1</li>\n  <li>Пункт 2</li>\n</ul>`; break;
+            case 'img': insert = `<img src="шлях_до_фото.jpg" alt="Опис">`; break;
+        }
+
+        pageContent.value = before + insert + after;
+        pageContent.focus();
+        updatePagePreview();
+    });
+});
+
+// Templates Logic
+const templates = {
+    'about-default': {
+        title: 'Про нашу майстерню',
+        content: `<h2>Майстерня, де народжується стиль</h2>
+<p>Ми не просто продаємо окуляри — ми створюємо ваш індивідуальний образ. Більше 10 років ми працюємо над тим, щоб кожен наш клієнт бачив світ у всіх його деталях.</p>
+<ul>
+  <li>10+ років досвіду</li>
+  <li>Сучасне обладнання</li>
+  <li>Професійні майстри</li>
+</ul>`
+    },
+    'contact-info': {
+        title: 'Як нас знайти',
+        content: `<h2>Контакти та локація</h2>
+<p>Ми знаходимося на центральному ринку Овідіополя.</p>
+<div style="background: rgba(0,255,255,0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(0,255,255,0.2);">
+  <p><strong>Адреса:</strong> смт. Овідіополь, Ринок</p>
+  <p><strong>Телефон:</strong> 097-500-03-02 (Костя)</p>
+  <p><strong>Години роботи:</strong> 8:30 — 15:00</p>
+</div>`
+    }
+};
+
+templateSelector?.addEventListener('change', () => {
+    const template = templates[templateSelector.value];
+    if (template && confirm('Замінити поточний контент шаблоном?')) {
+        pageTitle.value = template.title;
+        pageContent.value = template.content;
+        updatePagePreview();
+    }
+    templateSelector.value = '';
+});
 
 document.getElementById('save-page-btn')?.addEventListener('click', async () => {
     const data = {

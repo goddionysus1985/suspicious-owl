@@ -13,7 +13,7 @@ router.get('/stats', verifyAdmin, (req, res) => {
         const totalProducts = db.prepare('SELECT COUNT(*) as count FROM products').get().count;
         const outOfStock = db.prepare('SELECT COUNT(*) as count FROM products WHERE in_stock = 0 OR stock_quantity <= 0').get().count;
         const totalOrders = db.prepare('SELECT COUNT(*) as count FROM orders').get().count;
-        const revenue = db.prepare('SELECT SUM(total_price) as sum FROM orders WHERE status != "cancelled"').get().sum || 0;
+        const revenue = db.prepare("SELECT SUM(total_price) as sum FROM orders WHERE status != 'cancelled'").get().sum || 0;
 
         // Sales by day (last 7 days)
         const salesByDay = db.prepare(`

@@ -26,6 +26,8 @@
     padding: 2.5rem;
     width: 90%;
     max-width: 450px;
+    max-height: 90vh;
+    overflow-y: auto;
     position: relative;
     border: 1px solid var(--border-color);
     box-shadow: 0 20px 50px rgba(0,0,0,0.5);
@@ -163,4 +165,125 @@ a.contact-modal-item:hover {
 .contact-modal-item strong {
     font-size: 1.05rem;
     font-weight: 600;
+}
+
+/* Checkout Modal Redesign */
+.buy-modal-box {
+    max-width: 600px !important;
+    padding: 1.5rem 2rem !important;
+}
+
+.buy-modal-header {
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.buy-modal-product {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.buy-modal-icon {
+    font-size: 2rem;
+    background: var(--surface-color);
+    min-width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+
+.checkout-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.checkout-section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.2rem;
+}
+
+.checkout-section h4 {
+    font-size: 0.9rem;
+    margin-bottom: 0.8rem;
+    color: var(--accent-glow-alt);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+    padding: 0.6rem 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: var(--transition);
+    font-size: 0.95rem;
+}
+
+.radio-label:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--accent-glow-alt);
+}
+
+.radio-label input[type="radio"] {
+    accent-color: var(--accent-glow-alt);
+}
+
+.buy-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.buy-actions .btn {
+    flex: 1;
+    padding: 1rem;
+}
+
+/* Adjustments for tight spaces */
+.checkout-section .form-group {
+    margin-bottom: 0;
+}
+
+.checkout-section .form-control {
+    padding: 0.8rem 1.2rem;
+}
+
+@media (max-width: 480px) {
+    .form-row {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .buy-modal-box {
+        padding: 1.5rem !important;
+    }
+    .buy-actions {
+        flex-direction: column-reverse;
+    }
 }

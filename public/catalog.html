@@ -39,7 +39,13 @@
                 <li><a href="/catalog.html" class="active">Колекція</a></li>
             </ul>
             <div class="nav-actions">
-                <a href="/cabinet.html" id="auth-nav-link" class="auth-link">Кабінет</a>
+                <a href="#" class="cart-trigger" title="Кошик">
+                    <div class="cart-btn-wrapper">
+                        <span>🛒</span>
+                        <span class="cart-badge" id="cart-badge">0</span>
+                    </div>
+                </a>
+                <a href="#" id="auth-nav-link" class="auth-link">Увійти</a>
                 <div class="mobile-menu-btn" id="mobile-menu-btn">
                     <span></span>
                     <span></span>
@@ -235,6 +241,23 @@
             <span class="pulse"></span>
             <span class="icon">💬</span>
         </button>
+    </div>
+    <!-- Modals -->
+    <div class="modal-overlay" id="cart-modal">
+        <div class="modal-container fade-in-up cart-modal-box">
+            <button class="modal-close" id="cart-close">&times;</button>
+            <div class="modal-header">
+                <h3>Мій Кошик</h3>
+            </div>
+            <div id="cart-items-container">
+                <!-- Items injected by JS -->
+            </div>
+            <div class="cart-total-box">
+                <span class="cart-total-label">Всього до оплати:</span>
+                <span class="cart-total-value" id="cart-total-price">₴ 0</span>
+            </div>
+            <button class="btn btn-primary full-width" id="cart-checkout-btn">Оформити замовлення</button>
+        </div>
     </div>
 
     <!-- Auth Modal -->

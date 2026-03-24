@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Товар | Окулярна майстерня ОПТИКА</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/modals.css">
+    <link rel="stylesheet" href="css/product-page.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <meta name="theme-color" content="#05050A">
+</head>
+
+<body>
+    <div class="glow-bg glow-1"></div>
+    <div class="glow-bg glow-2"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-content">
+            <div class="logo-container" onclick="window.location.href='/'" style="cursor:pointer">
+                <img src="assets/logo.png" alt="Окулярна майстерня ОПТИКА" class="logo-img">
+                <span class="logo-text">ОКУЛЯРНА МАЙСТЕРНЯ ОПТИКА</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Головна</a></li>
+                <li><a href="catalog.html">Колекція</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="#" class="cart-trigger" title="Кошик">
+                    <div class="cart-btn-wrapper">
+                        <span>🛒</span>
+                        <span class="cart-badge" id="cart-badge">0</span>
+                    </div>
+                </a>
+                <a href="#" id="auth-nav-link" class="auth-link">Увійти</a>
+                <a href="#" id="contact-nav-link" class="btn btn-outline">Зв'язатися</a>
+                <div class="mobile-menu-btn" id="mobile-menu-btn">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="product-page-main">
+        <div class="container">
+            <nav class="breadcrumbs">
+                <a href="/">Головна</a> / <a href="catalog.html">Каталог</a> / <span id="breadcrumb-current">Товар</span>
+            </nav>
+
+            <div class="product-detail-grid">
+                <!-- Left: Image Gallery -->
+                <div class="product-gallery">
+                    <div class="main-image-container">
+                        <img id="main-product-img" src="assets/logo.png" alt="Product Image">
+                    </div>
+                    <div class="thumbnail-grid" id="thumbnail-grid">
+                        <!-- Thumbnails injected here -->
+                    </div>
+                </div>
+
+                <!-- Right: Product Info -->
+                <div class="product-info-panel">
+                    <div id="product-badges"></div>
+                    <h1 id="product-name">Завантаження...</h1>
+                    <div class="product-meta">
+                        <span id="product-brand" class="meta-item"></span>
+                        <span id="product-category" class="meta-item"></span>
+                    </div>
+
+                    <div class="product-price-box">
+                        <span id="product-price" class="current-price">₴ 0</span>
+                        <span id="product-old-price" class="old-price"></span>
+                    </div>
+
+                    <div class="product-description" id="product-description">
+                        <p>Будь ласка, зачекайте, ми завантажуємо опис товару...</p>
+                    </div>
+
+                    <div class="product-actions" style="display:flex; gap:1rem;">
+                        <button class="btn btn-primary flex-1" id="buy-now-btn">Придбати зараз 🛍️</button>
+                        <button class="btn btn-outline" id="add-to-cart-btn" style="padding: 0 1.5rem;" title="Додати в кошик">🛒+</button>
+                    </div>
+
+                    <div class="product-features-list">
+                        <div class="feature-item"><span>📦</span> Швидка доставка Новою Поштою</div>
+                        <div class="feature-item"><span>🛡️</span> Гарантія 12 місяців</div>
+                        <div class="feature-item"><span>🔄</span> Повернення/обмін 14 днів</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <section class="product-reviews-section">
+                <h2>Відгуки покупців</h2>
+                <div id="product-reviews-list">
+                    <!-- Reviews injected here -->
+                    <p class="no-reviews">Відгуків поки немає. Будьте першим!</p>
+                </div>
+                <button class="btn btn-outline" id="add-review-btn">Залишити відгук</button>
+            </section>
+
+            <!-- Related Products -->
+            <section class="related-products-section">
+                <h2>Схожі моделі</h2>
+                <div class="product-grid" id="related-products-grid">
+                    <!-- Related products injected here -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Chat Support -->
+    <div class="chat-wrapper" id="chat-wrapper">
+        <div class="chat-window" id="chat-window">
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <span class="chat-status-dot"></span>
+                    <div>
+                        <strong>Підтримка ОПТИКА</strong>
+                        <small>Онлайн</small>
+                    </div>
+                </div>
+                <button class="chat-close" id="chat-close-btn">&times;</button>
+            </div>
+            <div class="chat-messages" id="chat-messages-content">
+                <div class="message support">
+                    Вітаємо! Я менеджер ОПТИКИ. Чим можу вам допомогти?
+                </div>
+            </div>
+            <form class="chat-input-area" id="chat-form">
+                <input type="text" id="chat-input-field" placeholder="Напишіть повідомлення..." required>
+                <button type="submit" class="chat-send-btn">➔</button>
+            </form>
+        </div>
+        <button class="floating-cta chat-btn" id="chat-toggle-btn" title="Чат з підтримкою">
+            <span class="pulse"></span>
+            <span class="icon">💬</span>
+        </button>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal-overlay" id="cart-modal">
+        <div class="modal-container fade-in-up cart-modal-box">
+            <button class="modal-close" id="cart-close">&times;</button>
+            <div class="modal-header">
+                <h3>Мій Кошик</h3>
+            </div>
+            <div id="cart-items-container">
+                <!-- Items injected by JS -->
+            </div>
+            <div class="cart-total-box">
+                <span class="cart-total-label">Всього до оплати:</span>
+                <span class="cart-total-value" id="cart-total-price">₴ 0</span>
+            </div>
+            <button class="btn btn-primary full-width" id="cart-checkout-btn">Оформити замовлення</button>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Contact Modal -->
+    <div class="modal-overlay" id="contact-modal">
+        <div class="modal-container fade-in-up contact-modal-box">
+            <button class="modal-close" id="contact-close">&times;</button>
+            <div class="contact-modal-header">
+                <div class="contact-modal-icon">📍</div>
+                <h3>Контактна інформація</h3>
+            </div>
+            <div class="contact-modal-body">
+                <a href="tel:0975000302" class="contact-modal-item">
+                    <span class="contact-icon">📞</span>
+                    <div>
+                        <span class="contact-label">Телефон</span>
+                        <strong>097-500-03-02 (Костя)</strong>
+                    </div>
+                </a>
+                <a href="https://maps.app.goo.gl/mUNDTZ87WczDvk7b6" target="_blank" class="contact-modal-item">
+                    <span class="contact-icon">📍</span>
+                    <div>
+                        <span class="contact-label">Адреса</span>
+                        <strong>Овідіополь (Ринок)</strong>
+                    </div>
+                </a>
+                <div class="contact-modal-item">
+                    <span class="contact-icon">🕒</span>
+                    <div>
+                        <span class="contact-label">Години роботи</span>
+                        <strong>8:30 — 15:00</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="auth-modal">
+        <div class="modal-container fade-in-up">
+            <button class="modal-close" id="auth-close">&times;</button>
+            <div class="modal-tabs">
+                <button class="tab-btn active" data-tab="login">Вхід</button>
+                <button class="tab-btn" data-tab="register">Реєстрація</button>
+            </div>
+            <form id="login-form" class="auth-form active">
+                <h3>З поверненням</h3>
+                <p>Увійдіть до свого акаунту</p>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" placeholder="vasya@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary full-width">Увійти</button>
+            </form>
+            <form id="register-form" class="auth-form">
+                <h3>Створити акаунт</h3>
+                <p>Долучайтесь до нас</p>
+                <div class="form-group">
+                    <label>Ім'я</label>
+                    <input type="text" placeholder="Василь" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" placeholder="vasya@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" placeholder="Пароль" required>
+                </div>
+                <button type="submit" class="btn btn-primary full-width">Зареєструватись</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="buy-modal">
+        <div class="modal-container fade-in-up buy-modal-box" style="max-width: 600px;">
+            <button class="modal-close" id="buy-close">&times;</button>
+            <div class="buy-modal-header">
+                <div class="buy-modal-product">
+                    <div class="buy-modal-icon">👓</div>
+                    <div>
+                        <h3 id="buy-product-name">Продукт</h3>
+                        <span class="price" id="buy-product-price">₴ 0</span>
+                    </div>
+                </div>
+            </div>
+            <form id="checkout-form" class="checkout-form">
+                <div class="checkout-section">
+                    <h4>Параметри лінз</h4>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="vision_choice" value="none" checked>
+                            <span>Тільки оправа (без діоптрій)</span>
+                        </label>
+                        <label class="radio-label" id="use-saved-vision-label">
+                            <input type="radio" name="vision_choice" value="saved">
+                            <span>Використати мій збережений рецепт</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="checkout-section">
+                    <h4>Доставка</h4>
+                    <div class="form-group">
+                        <label>Спосіб доставки</label>
+                        <select id="checkout-delivery" class="form-control" required>
+                            <option value="nova_poshta">Нова Пошта</option>
+                            <option value="ukr_poshta">УкрПошта</option>
+                            <option value="pickup">Самовивіз (Овідіополь)</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label>Місто</label>
+                            <input type="text" id="checkout-city" class="form-control" placeholder="Київ">
+                        </div>
+                        <div class="form-group flex-1">
+                            <label>Відділення</label>
+                            <input type="text" id="checkout-warehouse" class="form-control" placeholder="№1">
+                        </div>
+                    </div>
+                </div>
+                <!-- Step 3: Payment -->
+                <div class="checkout-section">
+                    <h4>Оплата</h4>
+                    <select id="checkout-payment" class="form-control" required>
+                        <option value="cash">При отриманні (Накладений платіж)</option>
+                        <option value="card">Оплата на карту (Реквізити після замовлення)</option>
+                    </select>
+                </div>
+
+                <!-- Step 4: Promo Code -->
+                <div class="checkout-section">
+                    <h4>Промокод (якщо є)</h4>
+                    <div class="form-row">
+                        <input type="text" id="checkout-promo" class="form-control flex-1" placeholder="код">
+                        <button type="button" id="apply-promo-btn" class="btn btn-outline" style="margin-left: 1rem; height: 42px;">Застосувати</button>
+                    </div>
+                    <div id="promo-status" style="font-size: 0.85rem; margin-top: 5px;"></div>
+                </div>
+
+                <div class="buy-actions">
+                    <button type="button" class="btn btn-secondary" id="buy-cancel">Скасувати</button>
+                    <button type="submit" class="btn btn-primary" id="buy-confirm">Підтвердити замовлення</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="review-modal">
+        <div class="modal-container fade-in-up">
+            <button class="modal-close" id="review-close">&times;</button>
+            <form id="review-form">
+                <h3>Залишити відгук</h3>
+                <p>Поділіться вашими враженнями від товару</p>
+                <div class="review-stars" id="rating-stars">
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                </div>
+                <div class="form-group">
+                    <label>Ваш коментар</label>
+                    <textarea id="review-comment" class="form-control" placeholder="Напишіть щось..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary full-width">Опублікувати</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Окулярна майстерня ОПТИКА. Всі права захищені.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/product.js"></script>
+    <script src="js/support.js"></script>
+</body>
+
+</html>

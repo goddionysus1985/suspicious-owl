@@ -56,6 +56,12 @@
                 <li><a href="#about">Про нас</a></li>
             </ul>
             <div class="nav-actions">
+                <a href="#" class="cart-trigger" title="Кошик">
+                    <div class="cart-btn-wrapper">
+                        <span>🛒</span>
+                        <span class="cart-badge" id="cart-badge">0</span>
+                    </div>
+                </a>
                 <a href="#" id="auth-nav-link" class="auth-link">Увійти</a>
                 <a href="#" id="contact-nav-link" class="btn btn-outline">Зв'язатися</a>
                 <div class="mobile-menu-btn" id="mobile-menu-btn">
@@ -69,20 +75,28 @@
 
     <!-- Hero Section -->
     <section id="home" class="hero">
-        <div class="container hero-container">
-            <div class="hero-text fade-in">
-                <h1>Поглянь на світ <span class="text-gradient">по-новому</span></h1>
-                <p>Ексклюзивні оправи та преміальні лінзи для тих, хто не боїться виділятися. Ваш погляд — ваша головна
-                    зброя.</p>
-                <div class="hero-buttons">
-                    <a href="catalog.html" class="btn btn-primary">Дивитися каталог</a>
-                    <a href="#about" class="btn btn-secondary">Дізнатися більше</a>
+        <div id="hero-slider-container">
+            <!-- Dynamic Banners will be injected here -->
+            <div class="hero-slide active">
+                <div class="container hero-container">
+                    <div class="hero-text fade-in">
+                        <h1 id="hero-title">Поглянь на світ <span class="text-gradient">по-новому</span></h1>
+                        <p id="hero-description">Ексклюзивні оправи та преміальні лінзи для тих, хто не боїться виділятися. Ваш погляд — ваша головна зброя.</p>
+                        <div class="hero-buttons">
+                            <a href="catalog.html" class="btn btn-primary">Дивитися каталог</a>
+                            <a href="#about" class="btn btn-secondary">Дізнатися більше</a>
+                        </div>
+                    </div>
+                    <div class="hero-image-wrapper fade-in-right">
+                        <div class="hero-glow"></div>
+                        <img src="assets/new_hero_sunset.png" alt="Преміальні окуляри" class="hero-img" id="hero-image">
+                    </div>
                 </div>
             </div>
-            <div class="hero-image-wrapper fade-in-right">
-                <div class="hero-glow"></div>
-                <img src="assets/new_hero_sunset.png" alt="Преміальні окуляри" class="hero-img">
-            </div>
+        </div>
+        <div class="slider-controls" id="hero-controls" style="display: none;">
+            <button class="slider-prev">❮</button>
+            <button class="slider-next">❯</button>
         </div>
     </section>
 
@@ -96,7 +110,7 @@
 
             <div class="product-grid">
                 <!-- Product 1 -->
-                <div class="product-card fade-in-up" data-product-id="1" data-product-name="Owl Vision Pro" data-product-price="4500">
+                <div class="product-card fade-in-up" data-product-id="1" data-product-name="Owl Vision Pro" data-product-price="4500" data-product-slug="owl-vision-pro">
                     <div class="product-img-wrapper">
                         <img src="assets/products/product1.png" alt="Тонкі круглі окуляри" class="product-img">
                         <div class="badge-container"></div>
@@ -104,15 +118,18 @@
                     <div class="product-info">
                         <h3>Owl Vision Pro</h3>
                         <p class="product-desc">Тонка металева оправа для інтелектуального образу.</p>
-                        <div class="product-footer">
+                        <div class="product-footer" style="display:flex; gap:0.5rem; justify-content:space-between; align-items:center;">
                             <span class="price">₴ 4,500</span>
-                            <button class="btn btn-icon buy-btn">Купити</button>
+                            <div style="display:flex; gap:0.5rem;">
+                                <button class="btn btn-icon buy-btn" title="Купити">Купити</button>
+                                <button class="btn btn-outline add-cart-btn" style="padding:0 10px;" title="Додати в кошик">🛒+</button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Product 2 -->
-                <div class="product-card fade-in-up" style="transition-delay: 0.1s;" data-product-id="2" data-product-name="Vintage Hunter" data-product-price="5200">
+                <div class="product-card fade-in-up" style="transition-delay: 0.1s;" data-product-id="2" data-product-name="Vintage Hunter" data-product-price="5200" data-product-slug="vintage-hunter">
                     <div class="product-img-wrapper">
                         <img src="assets/products/product2.png" alt="Вінтажні черепахові окуляри" class="product-img">
                         <div class="badge-container"></div>
@@ -120,15 +137,18 @@
                     <div class="product-info">
                         <h3>Vintage Hunter</h3>
                         <p class="product-desc">Інтелігентна класика з агресивними нотками.</p>
-                        <div class="product-footer">
+                        <div class="product-footer" style="display:flex; gap:0.5rem; justify-content:space-between; align-items:center;">
                             <span class="price">₴ 5,200</span>
-                            <button class="btn btn-icon buy-btn">Купити</button>
+                            <div style="display:flex; gap:0.5rem;">
+                                <button class="btn btn-icon buy-btn" title="Купити">Купити</button>
+                                <button class="btn btn-outline add-cart-btn" style="padding:0 10px;" title="Додати в кошик">🛒+</button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Product 3 -->
-                <div class="product-card fade-in-up" style="transition-delay: 0.2s;" data-product-id="3" data-product-name="Cyber Crystal" data-product-price="6000">
+                <div class="product-card fade-in-up" style="transition-delay: 0.2s;" data-product-id="3" data-product-name="Cyber Crystal" data-product-price="6000" data-product-slug="cyber-crystal">
                     <div class="product-img-wrapper">
                         <img src="assets/products/product3.png" alt="Прозора оправа" class="product-img">
                         <div class="badge-container"></div>
@@ -154,7 +174,7 @@
     <section id="warranty" class="warranty">
         <div class="container">
             <div class="warranty-card fade-in">
-                <div class="warranty-content">
+                <div class="warranty-content" id="warranty-content">
                     <h2>Важливо <span class="text-gradient">Знати</span></h2>
                     <p class="warranty-subtitle">Гарантійний термін експлуатації окулярів — 12 місяців від дня їх
                         отримання споживачем за умови:</p>
@@ -182,7 +202,7 @@
                 <div class="image-glow"></div>
                 <img src="assets/hero.png" alt="Про нас" class="about-img">
             </div>
-            <div class="about-text fade-in-right">
+            <div class="about-text fade-in-right" id="about-content">
                 <h2>Майстерня, де <span class="text-gradient">народжується стиль</span></h2>
                 <p>Ми не просто продаємо окуляри — ми створюємо ваш індивідуальний образ. Більше 10 років ми працюємо
                     над тим, щоб кожен наш клієнт бачив світ у всіх його деталях.</p>
@@ -381,6 +401,25 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Cart Modal -->
+    <div class="modal-overlay" id="cart-modal">
+        <div class="modal-container fade-in-up cart-modal-box">
+            <button class="modal-close" id="cart-close">&times;</button>
+            <div class="modal-header">
+                <h3>Мій Кошик</h3>
+            </div>
+            <div id="cart-items-container">
+                <!-- Items injected by JS -->
+            </div>
+            <div class="cart-total-box">
+                <span class="cart-total-label">Всього до оплати:</span>
+                <span class="cart-total-value" id="cart-total-price">₴ 0</span>
+            </div>
+            <button class="btn btn-primary full-width" id="cart-checkout-btn">Оформити замовлення</button>
         </div>
     </div>
 

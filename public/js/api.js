@@ -129,6 +129,15 @@ const api = {
             method: 'POST',
             body: JSON.stringify({ product_id: productId, rating, comment })
         });
+    },
+
+    // --- CMS ---
+    async getBanners() {
+        return this.fetch('/cms/banners');
+    },
+
+    async getPage(slug) {
+        return this.fetch(`/cms/pages/${slug}`);
     }
 };
 

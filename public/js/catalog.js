@@ -56,6 +56,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const div = document.createElement('div');
         const isOutOfStock = !product.in_stock || product.in_stock === 0;
         div.className = `product-card glass-card fade-in ${isOutOfStock ? 'out-of-stock' : ''}`;
+        div.dataset.productId = product.id;
+        div.dataset.productSlug = product.slug;
+        div.dataset.productName = product.name;
+        div.dataset.productPrice = product.discount_price || product.price;
         
         const imageUrl = (product.images && product.images.length > 0) ? product.images[0] : 'assets/logo.png';
         const priceHTML = product.discount_price 
@@ -74,23 +78,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="product-price">
                     ${priceHTML}
                 </div>
-                <button class="btn btn-primary buy-btn" 
-                    ${isOutOfStock ? 'disabled' : ''}
-                    data-product-id="${product.id}" 
-                    data-product-name="${product.name}" 
-                    data-product-price="${product.discount_price || product.price}">
-                    ${isOutOfStock ? 'Немає' : 'Купити'}
-                </button>
+                <div class="product-actions" style="display:flex; gap:0.5rem; margin-top:1rem;">
+                    <button class="btn btn-primary buy-btn" style="flex:1;"
+                        ${isOutOfStock ? 'disabled' : ''}
+                        data-product-id="${product.id}" 
+                        data-product-slug="${product.slug}"
+                        data-product-name="${product.name}" 
+                        data-product-price="${product.discount_price || product.price}">
+                        ${isOutOfStock ? 'Немає' : 'Купити'}
+                    </button>
+                    <button class="btn btn-outline add-cart-btn" style="padding:0 10px;"
+                        ${isOutOfStock ? 'disabled' : ''}
+                        data-product-id="${product.id}" 
+                        data-product-slug="${product.slug}"
+                        data-product-name="${product.name}" 
+                        data-product-price="${product.discount_price || product.price}"
+                        data-product-image="${imageUrl}"
+                        title="Додати в кошик">🛒+</button>
+                </div>
             </div>
         `;
-
-        div.addEventListener('click', (e) => {
-            if (!e.target.classList.contains('buy-btn')) {
-                // Redirect to product page later
-                // window.location.href = `/product.html?slug=${product.slug}`;
-                console.log('Navigate to', product.slug);
-            }
-        });
 
         return div;
     }
