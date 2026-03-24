@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ОПТИКА - Адмін Панель</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/modals.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body class="admin-body">
+    <!-- Glow Effects -->
+    <div class="glow-bg glow-1"></div>
+    <div class="glow-bg glow-2"></div>
+
+    <div id="admin-login-overlay" class="modal-overlay active">
+        <div class="modal-container">
+            <h2 style="text-align: center; margin-bottom: 2rem;">Адмін Панель</h2>
+            <form id="admin-login-form">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="admin-email" required placeholder="admin@optica.com">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="admin-password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary full-width">Увійти</button>
+                <div id="admin-login-error" class="form-error" style="display:none; margin-top: 1rem;"></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="admin-dashboard" style="display: none;" class="admin-dashboard fade-in">
+        <aside class="admin-sidebar">
+            <div class="sidebar-logo">
+                <img src="assets/logo.png" alt="Logo" class="logo-img-small">
+                <span>ОПТИКА Адмін</span>
+            </div>
+            <ul class="admin-menu">
+                <li><button class="tab-btn active" data-tab="products">📦 Товари</button></li>
+                <li><button class="tab-btn" data-tab="orders">🛒 Замовлення</button></li>
+                <li><button class="tab-btn" data-tab="users">👥 Користувачі</button></li>
+            </ul>
+            <button id="admin-logout-btn" class="btn btn-outline" style="margin: auto 1.5rem 1.5rem 1.5rem; border-color: #FF4040; color: #FF4040;">Вийти</button>
+        </aside>
+
+        <main class="admin-main">
+            <!-- PRODUCTS TAB -->
+            <section id="products-tab" class="admin-tab active fade-in-up">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span>Всього товарів</span>
+                        <strong id="stat-total-products">0</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span>В наявності</span>
+                        <strong id="stat-in-stock">0</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span>Замовлень</span>
+                        <strong id="stat-total-orders">0</strong>
+                    </div>
+                </div>
+
+                <div class="admin-header">
+                    <h2>Управління Товарами</h2>
+                    <button class="btn btn-primary" id="add-product-btn">+ Додати товар</button>
+                </div>
+                
+                <div class="admin-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Фото</th>
+                                <th>Назва</th>
+                                <th>Ціна</th>
+                                <th>Категорія</th>
+                                <th>Наявність</th>
+                                <th>Дії</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-products-tbody">
+                            <!-- JS will populate this -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ORDERS TAB -->
+            <section id="orders-tab" class="admin-tab fade-in-up" style="display: none;">
+                <div class="admin-header">
+                    <h2>Управління Замовленнями</h2>
+                    <div class="filter-group">
+                        <select id="order-status-filter" class="form-control">
+                            <option value="all">Всі статуси</option>
+                            <option value="pending">В обробці (pending)</option>
+                            <option value="processing">Готується (processing)</option>
+                            <option value="shipped">Відправлено (shipped)</option>
+                            <option value="done">Виконано (done)</option>
+                            <option value="cancelled">Скасовано (cancelled)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="admin-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Клієнт</th>
+                                <th>Сума</th>
+                                <th>Доставка</th>
+                                <th>Статус</th>
+                                <th>Дії</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-orders-tbody">
+                            <!-- JS will populate this -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- USERS TAB -->
+            <section id="users-tab" class="admin-tab fade-in-up" style="display: none;">
+                <div class="admin-header">
+                    <h2>Управління Користувачами</h2>
+                </div>
+                
+                <div class="admin-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Ім'я</th>
+                                <th>Email</th>
+                                <th>Телефон</th>
+                                <th>Роль</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-users-tbody">
+                            <!-- JS will populate this -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div class="modal-overlay" id="product-modal">
+        <div class="modal-container fade-in-up" style="max-width: 600px;">
+            <button class="modal-close" id="product-modal-close">&times;</button>
+            <form id="product-form">
+                <input type="hidden" id="prod-id">
+                <h3 id="product-modal-title">Додати товар</h3>
+                
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label>Назва</label>
+                        <input type="text" id="prod-name" required>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Slug (URL)</label>
+                        <input type="text" id="prod-slug" required placeholder="example-product-name">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label>Ціна (₴)</label>
+                        <input type="number" id="prod-price" required>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Зі знижкою (₴)</label>
+                        <input type="number" id="prod-discount">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label>Категорія</label>
+                        <select id="prod-category" class="form-control" required>
+                            <option value="frames">Оправи</option>
+                            <option value="sunglasses">Сонцезахисні</option>
+                            <option value="lenses">Лінзи</option>
+                            <option value="accessories">Аксесуари</option>
+                        </select>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Бренд</label>
+                        <input type="text" id="prod-brand">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Опис</label>
+                    <textarea id="prod-desc" rows="3" class="form-control"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Фото (до 5шт)</label>
+                    <input type="file" id="prod-images" multiple accept="image/*" class="form-control" style="background: rgba(255,255,255,0.05); padding: 5px;">
+                    <div id="prod-existing-images" class="image-preview-list"></div>
+                </div>
+
+                <div class="form-row" style="margin-top: 1rem;">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="prod-stock" checked>
+                        <label for="prod-stock">В наявності</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="prod-featured">
+                        <label for="prod-featured">Рекомендуємо (Топ)</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary full-width" style="margin-top: 1.5rem;">Зберегти товар</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order Modal -->
+    <div class="modal-overlay" id="order-modal">
+        <div class="modal-container fade-in-up" style="max-width: 700px;">
+            <button class="modal-close" id="order-modal-close">&times;</button>
+            <h3>Деталі замовлення <span id="order-detail-id" class="text-gradient"></span></h3>
+            
+            <div class="order-client-info" style="margin: 1.5rem 0; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 10px;">
+                <p><strong>Клієнт:</strong> <span id="order-client-name"></span></p>
+                <p><strong>Email:</strong> <span id="order-client-email"></span></p>
+                <p><strong>Телефон:</strong> <span id="order-client-phone"></span></p>
+                <p><strong>Доставка:</strong> <span id="order-delivery"></span></p>
+                <p><strong>Нотатки клієнта:</strong> <span id="order-notes"></span></p>
+            </div>
+
+            <div class="order-items-list" style="max-height: 250px; overflow-y: auto; margin-bottom: 1.5rem;">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Товар</th>
+                            <th>К-сть</th>
+                            <th>Ціна</th>
+                            <th>Параметри зору</th>
+                        </tr>
+                    </thead>
+                    <tbody id="order-detail-items"></tbody>
+                </table>
+            </div>
+
+            <div class="order-status-update" style="border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label>Статус</label>
+                        <select id="order-edit-status" class="form-control">
+                            <option value="pending">В обробці (pending)</option>
+                            <option value="processing">Готується (processing)</option>
+                            <option value="shipped">Відправлено (shipped)</option>
+                            <option value="done">Виконано (done)</option>
+                            <option value="cancelled">Скасовано (cancelled)</option>
+                        </select>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>ТТН</label>
+                        <input type="text" id="order-edit-ttn" placeholder="Номер накладної">
+                    </div>
+                </div>
+                <button id="order-save-btn" class="btn btn-primary full-width">Оновити замовлення</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>

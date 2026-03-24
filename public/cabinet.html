@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ОПТИКА - Особистий кабінет</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/cabinet.css">
+    <link rel="stylesheet" href="css/modals.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body class="cabinet-page">
+    <div class="glow-bg glow-1"></div>
+    <div class="glow-bg glow-2"></div>
+
+    <nav class="glass-nav">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <img src="assets/logo.png" alt="Логотип" class="logo-img">
+                <span class="logo-text">ОПТИКА</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="/">Головна</a></li>
+                <li><a href="catalog.html">Колекція</a></li>
+                <li><a href="cabinet.html" class="active">Кабінет</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="cabinet-main container section">
+        <div class="cabinet-layout fade-in-up">
+            <!-- Sidebar Navigation -->
+            <aside class="cabinet-sidebar glass-card">
+                <div class="user-profile-header">
+                    <div class="user-avatar" id="main-avatar">?</div>
+                    <div class="user-meta">
+                        <h3 id="main-user-name">Завантаження...</h3>
+                        <p id="main-user-email">...</p>
+                    </div>
+                </div>
+                <nav class="cabinet-menu">
+                    <button class="cabinet-tab-btn active" data-tab="profile">Профіль</button>
+                    <button class="cabinet-tab-btn" data-tab="vision">Дані зору</button>
+                    <button class="cabinet-tab-btn" data-tab="orders">Замовлення</button>
+                    <button id="cabinet-logout-btn" class="cabinet-tab-btn text-danger">Вийти</button>
+                </nav>
+            </aside>
+
+            <!-- Main Content Area -->
+            <div class="cabinet-content glass-card">
+                <!-- Profile Tab -->
+                <div id="tab-profile" class="cabinet-pane active">
+                    <h2>Налаштування профілю</h2>
+                    <form id="profile-form" class="modern-form">
+                        <div class="form-group">
+                            <label>Ваше ім'я</label>
+                            <input type="text" id="profile-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email (тільки для читання)</label>
+                            <input type="email" id="profile-email" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Контактний телефон</label>
+                            <input type="tel" id="profile-phone" placeholder="+380...">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+                    </form>
+                </div>
+
+                <!-- Vision Tab -->
+                <div id="tab-vision" class="cabinet-pane">
+                    <h2>Параметри зору</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 2rem;">Ваші актуальні дані для виготовлення окулярів.</p>
+                    
+                    <form id="vision-form">
+                        <div class="vision-grid">
+                            <div class="vision-column">
+                                <h4 class="text-gradient">Праве око (OD)</h4>
+                                <div class="form-group">
+                                    <label>Сфера (SPH)</label>
+                                    <input type="number" step="0.25" id="od_sphere" placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label>Циліндр (CYL)</label>
+                                    <input type="number" step="0.25" id="od_cylinder" placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label>Вісь (AXIS)</label>
+                                    <input type="number" id="od_axis" placeholder="0">
+                                </div>
+                            </div>
+                            
+                            <div class="vision-column">
+                                <h4 class="text-gradient">Ліве око (OS)</h4>
+                                <div class="form-group">
+                                    <label>Сфера (SPH)</label>
+                                    <input type="number" step="0.25" id="os_sphere" placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label>Циліндр (CYL)</label>
+                                    <input type="number" step="0.25" id="os_cylinder" placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label>Вісь (AXIS)</label>
+                                    <input type="number" id="os_axis" placeholder="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label>Міжзінична відстань (PD, мм)</label>
+                                <input type="number" id="pd" placeholder="64">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Завантажити скан рецепта (JPEG, PNG, PDF)</label>
+                            <div class="file-upload-wrapper">
+                                <input type="file" id="vision-file" accept="image/*,.pdf">
+                                <div id="vision-file-preview" class="file-preview">
+                                    <!-- Preview here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Зберегти параметри</button>
+                    </form>
+                </div>
+
+                <!-- Orders Tab -->
+                <div id="tab-orders" class="cabinet-pane">
+                    <h2>Історія замовлень</h2>
+                    <div id="orders-container" class="orders-list">
+                        <!-- JS renders orders here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/cabinet.js"></script>
+</body>
+</html>

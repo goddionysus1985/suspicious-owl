@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Окулярна майстерня ОПТИКА - Преміальні окуляри</title>
+    <meta name="description"
+        content="Окулярна майстерня 'ОПТИКА'. Магазин стильних та преміальних окулярів для зору. Висока якість та сучасний дизайн.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/modals.css">
+    <link rel="stylesheet" href="css/index-page.css">
+    <link rel="stylesheet" href="css/responsive.css">
+
+    <!-- Open Graph / Meta -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Окулярна майстерня ОПТИКА — Преміальні окуляри">
+    <meta property="og:description"
+        content="Майстерня оптики вищого класу. Створюємо ідеальний погляд з турботою про ваш зір.">
+    <meta property="og:image" content="assets/hero.png">
+    <meta name="theme-color" content="#05050A">
+</head>
+
+<body>
+    <!-- Background Glow Effects -->
+    <div class="glow-bg glow-1"></div>
+    <div class="glow-bg glow-2"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-content">
+            <div class="logo-container">
+                <img src="assets/logo.png" alt="Окулярна майстерня ОПТИКА Логотип" class="logo-img">
+                <span class="logo-text">ОКУЛЯРНА МАЙСТЕРНЯ ОПТИКА</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Головна</a></li>
+                <li><a href="catalog.html">Колекція</a></li>
+                <li><a href="#about">Про нас</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="#" id="auth-nav-link" class="auth-link">Увійти</a>
+                <a href="#" id="contact-nav-link" class="btn btn-outline">Зв'язатися</a>
+                <div class="mobile-menu-btn" id="mobile-menu-btn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="container hero-container">
+            <div class="hero-text fade-in">
+                <div class="badge">Нова Колекція 2026</div>
+                <h1>Поглянь на світ <span class="text-gradient">по-новому</span></h1>
+                <p>Ексклюзивні оправи та преміальні лінзи для тих, хто не боїться виділятися. Ваш погляд — ваша головна
+                    зброя.</p>
+                <div class="hero-buttons">
+                    <a href="#collection" class="btn btn-primary">Дивитися каталог</a>
+                    <a href="#about" class="btn btn-secondary">Дізнатися більше</a>
+                </div>
+            </div>
+            <div class="hero-image-wrapper fade-in-right">
+                <div class="image-glow"></div>
+                <img src="assets/hero.png" alt="Преміальні окуляри" class="hero-img">
+            </div>
+        </div>
+    </section>
+
+    <!-- Collection Section -->
+    <section id="collection" class="collection">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>Наша Ексклюзивна <span class="text-gradient">Колекція</span></h2>
+                <p>Ретельно відібрані моделі для вашого ідеального стилю.</p>
+            </div>
+
+            <div class="product-grid">
+                <!-- Product 1 -->
+                <div class="product-card fade-in-up" data-product-id="1" data-product-name="Owl Vision Pro" data-product-price="4500">
+                    <div class="product-img-wrapper">
+                        <img src="assets/products/product1.png" alt="Тонкі круглі окуляри" class="product-img">
+                        <div class="badge-container"></div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Owl Vision Pro</h3>
+                        <p class="product-desc">Тонка металева оправа для інтелектуального образу.</p>
+                        <div class="product-footer">
+                            <span class="price">₴ 4,500</span>
+                            <button class="btn btn-icon buy-btn">Купити</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 2 -->
+                <div class="product-card fade-in-up" style="transition-delay: 0.1s;" data-product-id="2" data-product-name="Vintage Hunter" data-product-price="5200">
+                    <div class="product-img-wrapper">
+                        <img src="assets/products/product2.png" alt="Вінтажні черепахові окуляри" class="product-img">
+                        <div class="badge-container"></div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Vintage Hunter</h3>
+                        <p class="product-desc">Інтелігентна класика з агресивними нотками.</p>
+                        <div class="product-footer">
+                            <span class="price">₴ 5,200</span>
+                            <button class="btn btn-icon buy-btn">Купити</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 3 -->
+                <div class="product-card fade-in-up" style="transition-delay: 0.2s;" data-product-id="3" data-product-name="Cyber Crystal" data-product-price="6000">
+                    <div class="product-img-wrapper">
+                        <img src="assets/products/product3.png" alt="Прозора оправа" class="product-img">
+                        <div class="badge-container"></div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Cyber Crystal</h3>
+                        <p class="product-desc">Футуристична прозора оправа для сміливих рішень.</p>
+                        <div class="product-footer">
+                            <span class="price">₴ 6,000</span>
+                            <button class="btn btn-icon buy-btn">Купити</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 4rem;">
+                <a href="catalog.html" class="btn btn-secondary">Переглянути всю колекцію</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Warranty Section -->
+    <section id="warranty" class="warranty">
+        <div class="container">
+            <div class="warranty-card fade-in">
+                <div class="warranty-content">
+                    <h2>Важливо <span class="text-gradient">Знати</span></h2>
+                    <p class="warranty-subtitle">Гарантійний термін експлуатації окулярів — 12 місяців від дня їх
+                        отримання споживачем за умови:</p>
+                    <ul class="warranty-list">
+                        <li><span>А)</span> окуляри повинні зберігатися у жорсткому футлярі;</li>
+                        <li><span>Б)</span> не допускається прикладати до окулярів значне механічне зусилля.</li>
+                    </ul>
+                    <div class="warranty-care">
+                        <p>Окуляри (лінзи окулярів) необхідно мити миючим засобом для посуду та протирати м'якою
+                            тканинною серветкою.</p>
+                    </div>
+                </div>
+                <div class="warranty-image">
+                    <div class="image-glow"></div>
+                    <img src="assets/logo.png" alt="Важливо Знати" class="warranty-img">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container about-grid">
+            <div class="about-image fade-in">
+                <div class="image-glow"></div>
+                <img src="assets/hero.png" alt="Про нас" class="about-img">
+            </div>
+            <div class="about-text fade-in-right">
+                <h2>Майстерня, де <span class="text-gradient">народжується стиль</span></h2>
+                <p>Ми не просто продаємо окуляри — ми створюємо ваш індивідуальний образ. Більше 10 років ми працюємо
+                    над тим, щоб кожен наш клієнт бачив світ у всіх його деталях.</p>
+                <ul class="about-stats">
+                    <li><strong>10+</strong> років досвіду</li>
+                    <li><strong>5000+</strong> задоволених клієнтів</li>
+                    <li><strong>100%</strong> якість лінз</li>
+                </ul>
+                <a href="#" id="contact-about-link" class="btn btn-primary">Зв'язатись з майстром</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container features-grid">
+            <div class="feature-card fade-in">
+                <div class="feature-icon">👁️</div>
+                <h3>Преміум Лінзи</h3>
+                <p>Антиблікове покриття та захист від синього світла.</p>
+            </div>
+            <div class="feature-card fade-in" style="transition-delay: 0.1s;">
+                <div class="feature-icon">🛡️</div>
+                <h3>Надійна Оправа</h3>
+                <p>Титанові сплави та ударостійкий полікарбонат.</p>
+            </div>
+            <div class="feature-card fade-in" style="transition-delay: 0.2s;">
+                <div class="feature-icon">🚚</div>
+                <h3>Швидка Доставка</h3>
+                <p>Доставляємо Новою Поштою в день замовлення.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="footer">
+        <div class="footer-glow"></div>
+        <div class="container footer-content">
+            <div class="footer-brand">
+                <div class="logo-container">
+                    <img src="assets/logo.png" alt="Окулярна майстерня ОПТИКА Логотип" class="logo-img-small">
+                    <span class="logo-text">ОКУЛЯРНА МАЙСТЕРНЯ ОПТИКА</span>
+                </div>
+                <p>Майстерня оптики вищого класу. Створюємо ідеальний погляд з турботою про ваш зір.</p>
+                <div class="social-links">
+                    <a href="#" class="social-btn">📷</a>
+                    <a href="#" class="social-btn">📱</a>
+                    <a href="#" class="social-btn">✉️</a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h4>Навігація</h4>
+                <ul>
+                    <li><a href="#home">Головна</a></li>
+                    <li><a href="#collection">Каталог</a></li>
+                    <li><a href="#about">Про нас</a></li>
+                    <li><a href="#warranty">Гарантія</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h4>Адреса та Час</h4>
+                <div class="contact-item">
+                    <span class="contact-icon">📞</span>
+                    <p>097-500-03-02 (Костя)</p>
+                </div>
+                <div class="contact-item">
+                    <span class="contact-icon">📍</span>
+                    <p><a href="https://maps.app.goo.gl/mUNDTZ87WczDvk7b6" target="_blank" class="map-link">Овідіополь
+                            (Ринок)</a></p>
+                </div>
+                <div class="contact-item">
+                    <span class="contact-icon">🕒</span>
+                    <p>8:30 — 15:00</p>
+                </div>
+                <div class="contact-item">
+                    <span class="contact-icon">🛠️</span>
+                    <p>Ремонт та виготовлення</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Окулярна майстерня ОПТИКА. Всі права захищені.</p>
+        </div>
+    </footer>
+
+    <!-- Floating Mobile Button -->
+    <a href="tel:0975000302" class="floating-cta">
+        <span class="pulse"></span>
+        <span class="icon">📞</span>
+    </a>
+
+    <!-- Auth Modal Overlay -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="modal-container fade-in-up">
+            <button class="modal-close" id="auth-close">&times;</button>
+            <div class="modal-tabs">
+                <button class="tab-btn active" data-tab="login">Вхід</button>
+                <button class="tab-btn" data-tab="register">Реєстрація</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form active">
+                <h3>З поверненням</h3>
+                <p>Увійдіть до свого акаунту</p>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" placeholder="vasya@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary full-width">Увійти</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" class="auth-form">
+                <h3>Створити акаунт</h3>
+                <p>Долучайтесь до нас</p>
+                <div class="form-group">
+                    <label>Ім'я</label>
+                    <input type="text" placeholder="Василь" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" placeholder="vasya@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" placeholder="Створіть надійний пароль" required>
+                </div>
+                <button type="submit" class="btn btn-primary full-width">Зареєструватись</button>
+            </form>
+        </div>
+    </div>
+
+
+
+    <!-- Contact Modal -->
+    <div class="modal-overlay" id="contact-modal">
+        <div class="modal-container fade-in-up contact-modal-box">
+            <button class="modal-close" id="contact-close">&times;</button>
+            <div class="contact-modal-header">
+                <div class="contact-modal-icon">📍</div>
+                <h3>Контактна інформація</h3>
+            </div>
+            <div class="contact-modal-body">
+                <a href="tel:0975000302" class="contact-modal-item">
+                    <span class="contact-icon">📞</span>
+                    <div>
+                        <span class="contact-label">Телефон</span>
+                        <strong>097-500-03-02 (Костя)</strong>
+                    </div>
+                </a>
+                <a href="https://maps.app.goo.gl/mUNDTZ87WczDvk7b6" target="_blank" class="contact-modal-item">
+                    <span class="contact-icon">📍</span>
+                    <div>
+                        <span class="contact-label">Адреса</span>
+                        <strong>Овідіополь (Ринок)</strong>
+                    </div>
+                </a>
+                <div class="contact-modal-item">
+                    <span class="contact-icon">🕒</span>
+                    <div>
+                        <span class="contact-label">Години роботи</span>
+                        <strong>8:30 — 15:00</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal-overlay" id="edit-profile-modal">
+        <div class="modal-container fade-in-up">
+            <button class="modal-close" id="edit-profile-close">&times;</button>
+            <form id="edit-profile-form">
+                <h3>Редагувати профіль</h3>
+                <p>Змініть ваші дані</p>
+                <div class="form-group">
+                    <label>Ім'я</label>
+                    <input type="text" id="edit-name" placeholder="Ваше ім'я" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="edit-email" placeholder="email@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Новий пароль <span style="color:var(--text-secondary);font-weight:400">(залиште пустим, щоб не змінювати)</span></label>
+                    <input type="password" id="edit-password" placeholder="Новий пароль">
+                </div>
+                <button type="submit" class="btn btn-primary full-width">Зберегти зміни</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="modal-overlay" id="buy-modal">
+        <div class="modal-container fade-in-up buy-modal-box" style="max-width: 600px;">
+            <button class="modal-close" id="buy-close">&times;</button>
+            <div class="buy-modal-header">
+                <div class="buy-modal-product">
+                    <div class="buy-modal-icon">👓</div>
+                    <div>
+                        <h3 id="buy-product-name">Продукт</h3>
+                        <span class="price" id="buy-product-price">₴ 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <form id="checkout-form" class="checkout-form">
+                <!-- Step 1: Vision Data -->
+                <div class="checkout-section" id="checkout-vision-section">
+                    <h4>Параметри лінз</h4>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="vision_choice" value="none" checked>
+                            <span>Тільки оправа (без діоптрій)</span>
+                        </label>
+                        <label class="radio-label" id="use-saved-vision-label">
+                            <input type="radio" name="vision_choice" value="saved">
+                            <span>Використати мій збережений рецепт</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Step 2: Delivery -->
+                <div class="checkout-section">
+                    <h4>Доставка</h4>
+                    <div class="form-group">
+                        <label>Спосіб доставки</label>
+                        <select id="checkout-delivery" class="form-control" required>
+                            <option value="nova_poshta">Нова Пошта</option>
+                            <option value="ukr_poshta">УкрПошта</option>
+                            <option value="pickup">Самовивіз (Овідіополь)</option>
+                        </select>
+                    </div>
+                    <div class="form-row" id="address-fields">
+                        <div class="form-group flex-1">
+                            <label>Місто</label>
+                            <input type="text" id="checkout-city" class="form-control" placeholder="Київ">
+                        </div>
+                        <div class="form-group flex-1">
+                            <label>Відділення</label>
+                            <input type="text" id="checkout-warehouse" class="form-control" placeholder="№1">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Payment -->
+                <div class="checkout-section">
+                    <h4>Оплата</h4>
+                    <select id="checkout-payment" class="form-control" required>
+                        <option value="cash">При отриманні (Накладений платіж)</option>
+                        <option value="card">Оплата на карту (Реквізити після замовлення)</option>
+                    </select>
+                </div>
+
+                <div class="buy-actions">
+                    <button type="button" class="btn btn-secondary" id="buy-cancel">Скасувати</button>
+                    <button type="submit" class="btn btn-primary" id="buy-confirm">Підтвердити замовлення</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,313 @@
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
+    border-radius: 30px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+    cursor: pointer;
+    border: none;
+    font-size: 1rem;
+    font-family: var(--font-main);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent-glow), #5D1AA6);
+    color: white;
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.4);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 30px rgba(138, 43, 226, 0.8), 0 0 15px var(--accent-glow-alt);
+}
+
+.btn-secondary {
+    background: var(--surface-color);
+    color: white;
+    backdrop-filter: blur(10px);
+}
+
+.btn-outline {
+    border: 1px solid var(--accent-glow-alt);
+    color: var(--accent-glow-alt);
+    background: transparent;
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: var(--accent-glow-alt);
+}
+
+/* Glass Card */
+.glass-card {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+}
+
+/* Forms (Premium Glassmorphism) */
+.form-group {
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.form-group label {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+    margin-left: 5px;
+}
+
+.form-control, 
+input[type="text"], 
+input[type="email"], 
+input[type="tel"], 
+input[type="number"], 
+input[type="password"],
+select, 
+textarea {
+    width: 100%;
+    padding: 1.2rem 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    backdrop-filter: blur(5px);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.form-control:focus,
+input:focus, 
+select:focus, 
+textarea:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent-glow-alt);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.15), inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+select option {
+    background: #0d0d1a !important;
+    color: var(--text-primary);
+    padding: 10px;
+}
+
+
+.form-control::placeholder,
+input::placeholder {
+    color: rgba(255, 255, 255, 0.2);
+}
+
+.form-control:disabled,
+input:disabled {
+    background: rgba(255, 255, 255, 0.01);
+    border-color: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.3);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Custom File Upload (Premium) */
+input[type="file"] {
+    background: rgba(138, 43, 226, 0.05);
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 20px;
+    width: 100%;
+    transition: var(--transition);
+}
+
+input[type="file"]:hover {
+    border-color: var(--accent-glow-alt);
+    background: rgba(0, 255, 255, 0.05);
+}
+
+input[type="file"]::file-selector-button {
+    background: var(--accent-gradient);
+    border: none;
+    border-radius: 30px;
+    padding: 0.6rem 1.2rem;
+    color: white;
+    font-weight: 600;
+    margin-right: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+input[type="file"]::file-selector-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px var(--accent-glow);
+}
+
+
+/* Product Cards & Grids */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2.5rem;
+    margin-top: 2rem;
+}
+
+.product-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    overflow: hidden;
+    /* transform 0.1s for responsiveness, others 0.3s for smoothness */
+    transition: transform 0.1s ease-out, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(10px);
+}
+
+.product-card:hover {
+    /* JS Parallax handles transform and scale, CSS handles background and shadow */
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(0, 255, 255, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+
+.product-card.out-of-stock {
+    opacity: 0.7;
+    filter: grayscale(0.5);
+}
+
+.product-card.out-of-stock .product-img {
+    filter: blur(1px);
+}
+
+.product-img-wrapper, .product-img-container {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    overflow: hidden;
+    background: #0a0a1a;
+}
+
+.product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.product-card:hover .product-img {
+    transform: scale(1.1);
+}
+
+.product-info {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-title, .product-info h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.product-brand, .product-desc {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.product-footer, .product-price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.price-box {
+    display: flex;
+    flex-direction: column;
+}
+
+.current-price, .price {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--accent-glow-alt);
+}
+
+.old-price {
+    font-size: 0.9rem;
+    text-decoration: line-through;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.buy-btn, .btn-icon {
+    background: var(--accent-gradient);
+    border: none;
+    padding: 0.7rem 1.2rem;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.buy-btn:hover:not(:disabled), .btn-icon:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.buy-btn:disabled {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.3);
+    cursor: not-allowed;
+}
+
+/* Badges */
+.badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    z-index: 5;
+}
+
+.badge-featured {
+    background: var(--accent-glow);
+    color: white;
+    right: 1rem;
+    left: auto;
+}
+
+.badge-out-of-stock {
+    background: #ff4d4d;
+    color: white;
+    box-shadow: 0 0 10px rgba(255, 77, 77, 0.4);
+}
+
+
