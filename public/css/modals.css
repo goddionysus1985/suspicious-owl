@@ -85,3 +85,82 @@
 .auth-form.active {
     display: block;
 }
+
+/* Contact Modal Styles */
+.contact-modal-box {
+    padding: 2.5rem;
+    max-width: 400px;
+}
+
+.contact-modal-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.contact-modal-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.8rem;
+    display: block;
+}
+
+.contact-modal-header h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.contact-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.contact-modal-item {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    padding: 1.2rem;
+    background: var(--surface-color);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: var(--transition);
+}
+
+div.contact-modal-item {
+    cursor: default;
+}
+
+a.contact-modal-item:hover {
+    background: var(--surface-hover);
+    transform: translateY(-2px);
+    border-color: var(--accent-glow-alt);
+}
+
+.contact-icon {
+    font-size: 1.4rem;
+    min-width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+}
+
+.contact-modal-item div {
+    display: flex;
+    flex-direction: column;
+}
+
+.contact-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.2rem;
+}
+
+.contact-modal-item strong {
+    font-size: 1.05rem;
+    font-weight: 600;
+}
