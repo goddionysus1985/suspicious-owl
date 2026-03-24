@@ -31,6 +31,11 @@ router.post('/', optionalToken, (req, res) => {
         const userId = req.user ? req.user.id : null;
         const sessionId = session_id || 'anonymous';
         
+        // If user is logged in, associate all previous guest messages from this session with this user
+        if (userId && sessionId !== 'anonymous') {
+            db.prepare('UPDATE messages SET user_id = ? WHERE session_id = ? AND user_id IS NULL').run(userId, sessionId);
+        }
+
         const stmt = db.prepare('INSERT INTO messages (session_id, user_id, message, is_from_admin) VALUES (?, ?, ?, 0)');
         stmt.run(sessionId, userId, message);
 
@@ -65,12 +70,11 @@ router.get('/', optionalToken, (req, res) => {
 // Admin: Get all chats (List of unique sessions/users)
 router.get('/admin/chats', verifyAdmin, (req, res) => {
     try {
-        // Group by user_id if present, otherwise by session_id
         const chats = db.prepare(`
             SELECT 
-                session_id, 
-                user_id, 
-                MAX(created_at) as last_message_time,
+                m1.session_id, 
+                m1.user_id, 
+                MAX(m1.created_at) as last_message_time,
                 (SELECT message FROM messages m2 WHERE 
                     (m1.user_id IS NOT NULL AND m2.user_id = m1.user_id) OR 
                     (m1.user_id IS NULL AND m2.session_id = m1.session_id AND m2.user_id IS NULL)
@@ -79,9 +83,16 @@ router.get('/admin/chats', verifyAdmin, (req, res) => {
                     ((m1.user_id IS NOT NULL AND m3.user_id = m1.user_id) OR 
                      (m1.user_id IS NULL AND m3.session_id = m1.session_id AND m3.user_id IS NULL))
                     AND is_read = 0 AND is_from_admin = 0) as unread_count,
-                (SELECT name FROM users WHERE id = m1.user_id) as user_name
+                u.name as user_name,
+                u.email as user_email,
+                u.phone as user_phone,
+                vd.od_sphere, vd.od_cylinder, vd.od_axis,
+                vd.os_sphere, vd.os_cylinder, vd.os_axis,
+                vd.pd, vd.file_url as vision_file
             FROM messages m1
-            GROUP BY COALESCE(CAST(user_id AS TEXT), session_id)
+            LEFT JOIN users u ON m1.user_id = u.id
+            LEFT JOIN vision_data vd ON u.id = vd.user_id
+            GROUP BY COALESCE(CAST(m1.user_id AS TEXT), m1.session_id)
             ORDER BY last_message_time DESC
         `).all();
         res.json(chats);

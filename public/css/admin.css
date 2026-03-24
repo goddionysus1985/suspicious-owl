@@ -396,6 +396,40 @@
     font-size: 1.1rem;
 }
 
+.chat-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.chat-header-contacts {
+    text-align: right;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.chat-header-vision {
+    padding: 0.8rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    font-size: 0.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.vision-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.vision-file-link {
+    color: var(--accent-glow-alt);
+    text-decoration: underline;
+    font-weight: 600;
+}
+
 .admin-chat-header small {
     display: block;
     color: var(--text-secondary);

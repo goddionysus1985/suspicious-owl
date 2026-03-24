@@ -504,6 +504,36 @@ async function selectChat(chat) {
     document.getElementById('current-chat-name').textContent = chat.user_name || 'Гість';
     const idDisplay = chat.user_id ? `UserID: ${chat.user_id}` : `Session: ${chat.session_id ? chat.session_id.slice(-8) : ''}`;
     document.getElementById('current-chat-id').textContent = idDisplay;
+
+    // Contacts Info
+    const contactsEl = document.getElementById('current-chat-contacts');
+    if (contactsEl) {
+        contactsEl.innerHTML = `
+            ${chat.user_email ? `<div>${chat.user_email}</div>` : ''}
+            ${chat.user_phone ? `<div>${chat.user_phone}</div>` : ''}
+        `;
+    }
+
+    // Vision Data
+    const visionEl = document.getElementById('current-chat-vision');
+    if (visionEl) {
+        // Only show if user is registered and has some vision data
+        if (chat.user_id && (chat.od_sphere !== null || chat.pd !== null || chat.vision_file)) {
+            visionEl.style.display = 'block';
+            visionEl.innerHTML = `
+                <div class="vision-row">
+                    <span><strong>OD:</strong> SPH ${chat.od_sphere||'-'}, CYL ${chat.od_cylinder||'-'}, AX ${chat.od_axis||'-'}</span>
+                    <span><strong>OS:</strong> SPH ${chat.os_sphere||'-'}, CYL ${chat.os_cylinder||'-'}, AX ${chat.os_axis||'-'}</span>
+                </div>
+                <div class="vision-row">
+                    <span><strong>PD:</strong> ${chat.pd || '-'} мм</span>
+                    ${chat.vision_file ? `<a href="${chat.vision_file}" target="_blank" class="vision-file-link">📄 Скан рецепту</a>` : ''}
+                </div>
+            `;
+        } else {
+            visionEl.style.display = 'none';
+        }
+    }
     
     loadMessages();
 }
