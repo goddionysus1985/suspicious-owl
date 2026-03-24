@@ -36,7 +36,8 @@
     </div>
 
     <div id="admin-dashboard" style="display: none;" class="admin-dashboard fade-in">
-        <aside class="admin-sidebar">
+        <aside class="admin-sidebar" id="admin-sidebar">
+            <button class="mobile-close-btn" id="mobile-sidebar-close">&times;</button>
             <div class="sidebar-logo">
                 <img src="assets/logo.png" alt="Logo" class="logo-img-small">
                 <span>ОПТИКА Адмін</span>
@@ -45,11 +46,15 @@
                 <li><button class="tab-btn active" data-tab="products">📦 Товари</button></li>
                 <li><button class="tab-btn" data-tab="orders">🛒 Замовлення</button></li>
                 <li><button class="tab-btn" data-tab="users">👥 Користувачі</button></li>
+                <li><button class="tab-btn" data-tab="support">💬 Підтримка</button></li>
             </ul>
             <button id="admin-logout-btn" class="btn btn-outline" style="margin: auto 1.5rem 1.5rem 1.5rem; border-color: #FF4040; color: #FF4040;">Вийти</button>
         </aside>
 
         <main class="admin-main">
+            <button class="mobile-sidebar-toggle" id="mobile-sidebar-toggle">
+                <span></span><span></span><span></span>
+            </button>
             <!-- PRODUCTS TAB -->
             <section id="products-tab" class="admin-tab active fade-in-up">
                 <div class="stats-grid">
@@ -147,6 +152,37 @@
                             <!-- JS will populate this -->
                         </tbody>
                     </table>
+                </div>
+            </section>
+
+            <!-- SUPPORT TAB -->
+            <section id="support-tab" class="admin-tab fade-in-up" style="display: none;">
+                <div class="admin-header">
+                    <h2>Підтримка клієнтів</h2>
+                </div>
+                
+                <div class="support-layout">
+                    <aside class="chat-sidebar">
+                        <div class="chat-list-header">Діалоги</div>
+                        <div id="admin-chat-list" class="admin-chat-list">
+                            <div class="chat-placeholder">Завантаження...</div>
+                        </div>
+                    </aside>
+                    <main class="chat-main">
+                        <div id="admin-chat-header" class="admin-chat-header" style="display: none;">
+                            <div>
+                                <strong id="current-chat-name">Адмін</strong>
+                                <small id="current-chat-id"></small>
+                            </div>
+                        </div>
+                        <div id="admin-chat-messages" class="admin-chat-messages">
+                            <div class="chat-placeholder">Оберіть діалог зліва, щоб почати переписку</div>
+                        </div>
+                        <form id="admin-chat-form" class="admin-chat-input" style="display: none;">
+                            <input type="text" id="admin-chat-input" placeholder="Напишіть відповідь..." required>
+                            <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem; min-width: auto; margin:0">➔</button>
+                        </form>
+                    </main>
                 </div>
             </section>
         </main>

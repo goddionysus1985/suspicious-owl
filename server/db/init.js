@@ -82,6 +82,18 @@ db.exec(`
     FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE SET NULL
   );
+
+  CREATE TABLE IF NOT EXISTS messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id TEXT, -- For guests
+    user_id INTEGER, -- For logged in users
+    sender_name TEXT,
+    message TEXT NOT NULL,
+    is_from_admin BOOLEAN DEFAULT 0,
+    is_read BOOLEAN DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+  );
 `);
 
 console.log('БД успішно ініціалізована.');

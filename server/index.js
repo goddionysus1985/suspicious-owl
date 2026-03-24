@@ -19,11 +19,13 @@ const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
 const userRoutes = require('./routes/users');
 const orderRoutes = require('./routes/orders');
+const supportRoutes = require('./routes/support');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/support', supportRoutes);
 
 // Специфічні маршрути сторінок
 app.get('/admin', (req, res) => {

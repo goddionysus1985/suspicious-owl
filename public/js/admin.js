@@ -79,6 +79,32 @@ function initAuth() {
     });
 
     document.getElementById('admin-logout-btn').addEventListener('click', logout);
+
+    // Mobile Sidebar Logic
+    const mobileToggle = document.getElementById('mobile-sidebar-toggle');
+    const mobileClose = document.getElementById('mobile-sidebar-close');
+    const sidebar = document.getElementById('admin-sidebar');
+
+    if (mobileToggle) {
+        mobileToggle.addEventListener('click', () => {
+            sidebar.classList.add('mobile-active');
+        });
+    }
+
+    if (mobileClose) {
+        mobileClose.addEventListener('click', () => {
+            sidebar.classList.remove('mobile-active');
+        });
+    }
+
+    // Auto-close sidebar on mobile when tab is clicked
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (window.innerWidth <= 900) {
+                sidebar.classList.remove('mobile-active');
+            }
+        });
+    });
 }
 
 async function checkAdminToken() {
