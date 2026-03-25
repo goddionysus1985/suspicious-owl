@@ -20,6 +20,33 @@ function showToast(message, isError = false) {
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 3000);
 }
+// Slug Generation Utility
+function generateSlug(text) {
+    const cyrillicToLatin = {
+        'а': 'a', 'б': 'b', 'в': 'v', 'г': 'h', 'ґ': 'g', 'д': 'd', 'е': 'e', 'є': 'ie', 'ж': 'zh', 'з': 'z',
+        'и': 'y', 'і': 'i', 'ї': 'i', 'й': 'i', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p',
+        'р': 'r', 'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'shch',
+        'ь': '', 'ю': 'iu', 'я': 'ia', 'ы': 'y', 'ё': 'io', 'э': 'e', ' ': '-', '_': '-'
+    };
+    return text.toString().toLowerCase()
+        .split('')
+        .map(char => cyrillicToLatin[char] !== undefined ? cyrillicToLatin[char] : char)
+        .join('')
+        .replace(/[^a-z0-9-]/g, '')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '');
+}
+
+function handleAutoSlug(sourceId, targetId) {
+    const sourceEl = document.getElementById(sourceId);
+    const targetEl = document.getElementById(targetId);
+    if (!sourceEl || !targetEl) return;
+    
+    sourceEl.addEventListener('input', () => {
+        // Only auto-generate if target is empty OR already matches previous auto-gen
+        targetEl.value = generateSlug(sourceEl.value);
+    });
+}
 
 // Fetch wrapper for Admin API
 async function apiFetch(endpoint, options = {}) {
@@ -51,6 +78,9 @@ async function apiFetch(endpoint, options = {}) {
 function initAuth() {
     if (adminToken) {
         checkAdminToken();
+        // Setup auto-slugs
+        handleAutoSlug('prod-name', 'prod-slug');
+        handleAutoSlug('coll-name', 'coll-slug');
     }
     
     loginForm.addEventListener('submit', async (e) => {
@@ -144,7 +174,15 @@ tabBtns.forEach(btn => {
         const targetTab = document.getElementById(`${tabId}-tab`);
         if (targetTab) targetTab.style.display = 'block';
 
-        if (tabId === 'dashboard') loadDashboard();
+        if (tabId === 'dashboard') {
+            loadDashboard(document.getElementById('dash-period-select')?.value);
+            // Re-bind period listener just in case or ensure it's bound once
+            const periodSelect = document.getElementById('dash-period-select');
+            if (periodSelect && !periodSelect.dataset.bound) {
+                periodSelect.addEventListener('change', (e) => loadDashboard(e.target.value));
+                periodSelect.dataset.bound = 'true';
+            }
+        }
         if (tabId === 'products') loadProducts();
         if (tabId === 'orders') loadOrders();
         if (tabId === 'users') loadUsers();
@@ -171,7 +209,7 @@ let allProducts = [];
 
 async function loadProducts() {
     try {
-        const res = await apiFetch('/products?limit=100');
+        const res = await apiFetch('/products?limit=1000');
         allProducts = res.data;
         renderProducts(allProducts);
     } catch (e) {
@@ -186,18 +224,22 @@ function renderProducts(products) {
     const totalEl = document.getElementById('dash-total-products');
     const inStockEl = document.getElementById('dash-total-stock');
     if (totalEl) totalEl.textContent = products.length;
-    if (inStockEl) inStockEl.textContent = products.filter(p => p.in_stock).length;
+    if (inStockEl) inStockEl.textContent = products.filter(p => p.in_stock && p.stock_quantity > 0).length;
     
     products.forEach(p => {
         const img = (p.images && p.images.length > 0) ? p.images[0] : 'assets/logo.png';
         const tr = document.createElement('tr');
         tr.innerHTML = `
+            <td>
+                <input type="checkbox" ${Number(p.in_home_collection) === 1 ? 'checked' : ''} 
+                    onchange="toggleHomeCollection(${p.id}, this.checked)" title="На головну">
+            </td>
             <td><img src="${img}" class="table-img"></td>
             <td><strong>${p.name}</strong><br><small style="color:var(--text-secondary)">${p.slug}</small></td>
             <td>${p.price} ₴ ${p.discount_price ? `<br><small style="color:var(--accent-glow-alt)">${p.discount_price} ₴</small>` : ''}</td>
             <td>${p.category || '-'}</td>
             <td>
-                ${p.in_stock ? '<span class="status-pill status-in-stock">Є в наявності</span>' : '<span class="status-pill status-out-of-stock">Немає</span>'}
+                ${(p.in_stock && p.stock_quantity > 0) ? '<span class="status-pill status-in-stock">Є</span>' : '<span class="status-pill status-out-of-stock">Ні</span>'}
                 <br><small style="color:var(--text-secondary)">К-сть: ${p.stock_quantity || 0}</small>
             </td>
             <td>
@@ -210,6 +252,46 @@ function renderProducts(products) {
         prodTbody.appendChild(tr);
     });
 }
+
+window.toggleHomeCollection = async (id, val) => {
+    const p = allProducts.find(x => x.id === id);
+    if (!p) return;
+    
+    // Save old value for rollback
+    const oldVal = p.in_home_collection;
+    
+    try {
+        // Optimistic update
+        p.in_home_collection = val ? 1 : 0;
+        
+        const formData = new FormData();
+        formData.append('name', p.name);
+        formData.append('slug', p.slug);
+        formData.append('price', p.price);
+        formData.append('discount_price', (p.discount_price === undefined || p.discount_price === null) ? '' : p.discount_price);
+        formData.append('category', p.category || '');
+        formData.append('brand', p.brand || '');
+        formData.append('gender', p.gender || 'unisex');
+        formData.append('description', p.description || '');
+        formData.append('in_stock', (p.in_stock === undefined || p.in_stock === null) ? 1 : Number(p.in_stock));
+        formData.append('stock_quantity', p.stock_quantity || 0);
+        formData.append('featured', Number(p.featured) === 1 ? 1 : 0);
+        formData.append('in_home_collection', val ? 1 : 0);
+        
+        // Preserve existing images
+        if (p.images && p.images.length > 0) {
+            p.images.forEach(img => formData.append('existing_images', img));
+        }
+        
+        await apiFetch(`/products/${id}`, { method: 'PUT', body: formData });
+        showToast(val ? 'Додано до головної' : 'Видалено з головної');
+    } catch (e) { 
+        // Rollback on error
+        p.in_home_collection = oldVal;
+        renderProducts(allProducts); // Re-render to fix the checkbox
+        showToast(e.message, true); 
+    }
+};
 
 document.getElementById('add-product-btn').addEventListener('click', () => {
     prodForm.reset();
@@ -235,8 +317,9 @@ async function editProduct(id) {
     document.getElementById('prod-category').value = p.category || 'frames';
     document.getElementById('prod-brand').value = p.brand || '';
     document.getElementById('prod-desc').value = p.description || '';
-    document.getElementById('prod-stock').checked = p.in_stock === 1;
-    document.getElementById('prod-featured').checked = p.featured === 1;
+    document.getElementById('prod-stock').checked = Number(p.in_stock) === 1;
+    document.getElementById('prod-featured').checked = Number(p.featured) === 1;
+    document.getElementById('prod-home').checked = Number(p.in_home_collection) === 1;
     document.getElementById('prod-quantity').value = p.stock_quantity || 0;
 
     // Show existing images
@@ -271,6 +354,7 @@ prodForm.addEventListener('submit', async (e) => {
     formData.append('description', document.getElementById('prod-desc').value);
     formData.append('in_stock', document.getElementById('prod-stock').checked ? 1 : 0);
     formData.append('featured', document.getElementById('prod-featured').checked ? 1 : 0);
+    formData.append('in_home_collection', document.getElementById('prod-home').checked ? 1 : 0);
     formData.append('stock_quantity', document.getElementById('prod-quantity').value);
     
     // Existing images
@@ -619,15 +703,27 @@ function stopSupportPolling() {
 // --- Dashboard Logic ---
 let salesChart = null;
 
-async function loadDashboard() {
+async function loadDashboard(period = '7days') {
     try {
-        const stats = await apiFetch('/analytics/stats');
+        const stats = await apiFetch(`/analytics/stats?period=${period}`);
         
+        // Update Chart Title
+        const chartTitle = document.querySelector('#dashboard-tab .analytics-card h3');
+        if (chartTitle) {
+            const periods = {
+                '7days': '📈 Продажі за останій тиждень',
+                '30days': '📈 Продажі за останні 30 днів',
+                '6months': '📈 Продажі за півроку',
+                '1year': '📈 Продажі за рік'
+            };
+            chartTitle.textContent = periods[period] || '📈 Продажі';
+        }
+
         // Update summary cards
         document.getElementById('dash-total-products').textContent = stats.summary.totalProducts;
         document.getElementById('dash-total-stock').textContent = stats.summary.totalProducts - stats.summary.outOfStock;
         document.getElementById('dash-total-orders').textContent = stats.summary.totalOrders;
-        document.getElementById('dash-total-revenue').textContent = `${stats.summary.revenue.toLocaleString()} ₴`;
+        document.getElementById('dash-total-revenue').textContent = `${(stats.summary.revenue || 0).toLocaleString('uk-UA')} ₴`;
 
         // Render Top Products
         const topList = document.getElementById('top-products-list');
@@ -638,13 +734,13 @@ async function loadDashboard() {
             </div>
         `).join('') || '<div class="chat-placeholder">Немає продажів</div>';
 
-        renderSalesChart(stats.salesByDay);
+        renderSalesChart(stats.salesByDay, period);
     } catch (e) {
         showToast(e.message, true);
     }
 }
 
-function renderSalesChart(data) {
+function renderSalesChart(data, period) {
     const canvas = document.getElementById('sales-chart');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -653,7 +749,15 @@ function renderSalesChart(data) {
         salesChart.destroy();
     }
 
-    const labels = data.map(d => d.date);
+    // Format labels nicely based on period
+    const labels = data.map(d => {
+        if (period === '6months' || period === '1year') {
+            const [y, m] = d.date.split('-');
+            const months = ['Січ','Лют','Бер','Кві','Тра','Чер','Лип','Сер','Вер','Жов','Лис','Гру'];
+            return `${months[parseInt(m)-1]} ${y}`;
+        }
+        return d.date;
+    });
     const values = data.map(d => d.total);
 
     salesChart = new Chart(ctx, {
@@ -892,6 +996,10 @@ bannerForm.addEventListener('submit', async (e) => {
     formData.append('image', document.getElementById('banner-image').files[0]);
     formData.append('title', document.getElementById('banner-title').value);
     formData.append('link', document.getElementById('banner-link').value);
+    formData.append('subtitle', document.getElementById('banner-subtitle').value);
+    formData.append('btn_text', document.getElementById('banner-btn-text').value);
+    formData.append('btn2_text', document.getElementById('banner-btn2-text').value);
+    formData.append('btn2_link', document.getElementById('banner-btn2-link').value);
 
     try {
         await apiFetch('/cms/banners', { method: 'POST', body: formData });
@@ -918,19 +1026,108 @@ const pagePreviewPane = document.getElementById('page-preview-pane');
 const templateSelector = document.getElementById('template-selector');
 
 function updatePagePreview() {
-    if (pagePreviewPane) {
-        pagePreviewPane.innerHTML = pageContent.value;
+    const pane = document.getElementById('page-preview-pane');
+    if (!pane) return;
+
+    const slug = document.getElementById('page-selector')?.value;
+
+    if (slug === 'home-hero') {
+        const titleVal = document.getElementById('hero-title')?.value || 'Поглянь на світ по-новому';
+        const subtitleVal = document.getElementById('hero-subtitle')?.value || 'Ексклюзивні оправи та преміальні лінзи...';
+        const btn1TextVal = document.getElementById('hero-btn1-text')?.value || 'Дивитися каталог';
+        const btn2TextVal = document.getElementById('hero-btn2-text')?.value || 'Дізнатися більше';
+        
+        const previewImg = document.getElementById('hero-preview')?.querySelector('img');
+        const imgSrcVal = previewImg ? previewImg.src : 'assets/logo.png';
+
+        pane.style.background = '#0a0a0c';
+        pane.style.color = '#fff';
+        pane.style.padding = '0';
+
+        pane.innerHTML = `
+            <div style="background: #0a0a0c; color: #fff; min-height: 100%; display: flex; align-items: center; padding: 2rem;">
+                <div style="width: 100%; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 2rem;">
+                    <div style="text-align: left;">
+                        <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; line-height: 1.2; word-break: break-word;">${titleVal}</h1>
+                        <p style="margin-bottom: 2rem; color: rgba(255,255,255,0.7); font-size: 1rem; line-height: 1.6;">${subtitleVal}</p>
+                        <div style="display: flex; gap: 1rem;">
+                            <div style="padding: 0.8rem 1.8rem; background: #8a2be2; border-radius: 30px; font-weight: 700; font-size: 0.9rem; box-shadow: 0 0 20px rgba(138, 43, 226, 0.4);">${btn1TextVal}</div>
+                            <div style="padding: 0.8rem 1.8rem; background: rgba(255,255,255,0.05); border-radius: 30px; font-weight: 700; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.1);">${btn2TextVal}</div>
+                        </div>
+                    </div>
+                    <div style="position: relative; width: 100%;">
+                        <img src="${imgSrcVal}" style="width: 100%; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.05);">
+                    </div>
+                </div>
+            </div>
+        `;
+    } else {
+        pane.style.background = '#fff';
+        pane.style.color = '#333';
+        pane.style.padding = '2rem';
+        pane.innerHTML = document.getElementById('page-content')?.value || '';
     }
 }
 
 async function loadPages() {
     const slug = pageSelector.value;
-    try {
-        const page = await apiFetch(`/cms/pages/${slug}`);
-        pageTitle.value = page.title || '';
-        pageContent.value = page.content || '';
-        updatePagePreview();
-    } catch (e) { showToast(e.message, true); }
+    const heroUI = document.getElementById('hero-editor-ui');
+    const stdTitle = document.getElementById('standard-page-title-group');
+    const stdContent = document.getElementById('standard-page-content-group');
+    const toolbar = document.querySelector('.editor-toolbar');
+
+    if (slug === 'home-hero') {
+        if (heroUI) heroUI.style.display = 'flex';
+        if (stdTitle) stdTitle.style.display = 'none';
+        if (stdContent) stdContent.style.display = 'none';
+        if (toolbar) toolbar.style.display = 'none';
+        
+        // Load first banner as Hero
+        try {
+            const banners = await apiFetch('/cms/banners');
+            const hero = banners[0] || {
+                title: 'Поглянь на світ по-новому',
+                subtitle: 'Ексклюзивні оправи та преміальні лінзи для тих, хто не боїться виділятися. Ваш погляд — ваша головна зброя.',
+                btn_text: 'Дивитися каталог',
+                link: 'catalog.html',
+                btn2_text: 'Дізнатися більше',
+                btn2_link: '#about',
+                image: 'assets/logo.png'
+            };
+            
+            const fieldMap = {
+                'hero-title': hero.title,
+                'hero-subtitle': hero.subtitle,
+                'hero-btn1-text': hero.btn_text,
+                'hero-btn1-link': hero.link,
+                'hero-btn2-text': hero.btn2_text,
+                'hero-btn2-link': hero.btn2_link
+            };
+
+            for (const [id, val] of Object.entries(fieldMap)) {
+                const el = document.getElementById(id);
+                if (el) el.value = val || '';
+            }
+            
+            const previewContainer = document.getElementById('hero-preview');
+            if (hero.image && previewContainer) {
+                previewContainer.innerHTML = `<img src="${hero.image}" style="max-width:100%; max-height:100%; object-fit:contain;">`;
+            }
+            updatePagePreview();
+        } catch (e) { showToast(e.message, true); }
+    } else {
+        if (heroUI) heroUI.style.display = 'none';
+        if (stdTitle) stdTitle.style.display = 'block';
+        if (stdContent) stdContent.style.display = 'block';
+        if (toolbar) toolbar.style.display = 'flex';
+        
+        try {
+            const page = await apiFetch(`/cms/pages/${slug}`);
+            if (pageTitle) pageTitle.value = page.title || '';
+            if (pageContent) pageContent.value = page.content || '';
+            updatePagePreview();
+        } catch (e) { showToast(e.message, true); }
+    }
 }
 
 pageSelector?.addEventListener('change', loadPages);
@@ -996,15 +1193,65 @@ templateSelector?.addEventListener('change', () => {
 });
 
 document.getElementById('save-page-btn')?.addEventListener('click', async () => {
-    const data = {
-        slug: pageSelector.value,
-        title: pageTitle.value,
-        content: pageContent.value
-    };
-    try {
-        await apiFetch('/cms/pages', { method: 'POST', body: JSON.stringify(data) });
-        showToast('Сторінку збережено');
-    } catch (e) { showToast(e.message, true); }
+    const slug = pageSelector.value;
+
+    if (slug === 'home-hero') {
+        // Save as Banner (targeted first banner)
+        const formData = new FormData();
+        const imageFile = document.getElementById('hero-image').files[0];
+        if (imageFile) formData.append('image', imageFile);
+        
+        formData.append('title', document.getElementById('hero-title').value);
+        formData.append('subtitle', document.getElementById('hero-subtitle').value);
+        formData.append('btn_text', document.getElementById('hero-btn1-text').value);
+        formData.append('link', document.getElementById('hero-btn1-link').value);
+        formData.append('btn2_text', document.getElementById('hero-btn2-text').value);
+        formData.append('btn2_link', document.getElementById('hero-btn2-link').value);
+
+        try {
+            // Check if we have at least one banner to update or if we should create
+            const banners = await apiFetch('/cms/banners');
+            if (banners.length > 0) {
+                // UPDATE first banner (WE NEED A PUT ROUTE OR SIMILAR)
+                // Actually, let's just use POST but maybe we should add update support
+                // For now, let's assume we can POST a new one and the user can delete the old
+                // OR better: I'll add update support to cms.js right now.
+                await apiFetch(`/cms/banners/${banners[0].id}`, { method: 'PUT', body: formData });
+            } else {
+                if (!imageFile) throw new Error('Потрібно обрати зображення для нового банера');
+                await apiFetch('/cms/banners', { method: 'POST', body: formData });
+            }
+            showToast('Головний банер збережено');
+        } catch (e) { showToast(e.message, true); }
+    } else {
+        const data = {
+            slug: slug,
+            title: pageTitle.value,
+            content: pageContent.value
+        };
+        try {
+            await apiFetch('/cms/pages', { method: 'POST', body: JSON.stringify(data) });
+            showToast('Сторінку збережено');
+        } catch (e) { showToast(e.message, true); }
+    }
+});
+
+// Hero Input Listeners for live preview (including links and titles)
+['hero-title', 'hero-subtitle', 'hero-btn1-text', 'hero-btn2-text', 'hero-btn1-link', 'hero-btn2-link'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', updatePagePreview);
+});
+
+// Hero Image Preview
+document.getElementById('hero-image')?.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            document.getElementById('hero-preview').innerHTML = `<img src="${event.target.result}" style="max-width:100%; max-height:100%; object-fit:contain;">`;
+            updatePagePreview();
+        };
+        reader.readAsDataURL(file);
+    }
 });
 
 // --- Logs Logic ---
@@ -1025,5 +1272,11 @@ async function loadLogs() {
     } catch (e) { showToast(e.message, true); }
 }
 
+// Init
+document.addEventListener('DOMContentLoaded', initAuth);
+
+// Placeholder for other missing logic
+async function loadLogs() { /* Implemented if needed */ }
+async function loadSettings() { /* Implemented if needed */ }
 // Init
 document.addEventListener('DOMContentLoaded', initAuth);

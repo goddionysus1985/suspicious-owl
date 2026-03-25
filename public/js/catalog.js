@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createProductCard(product) {
         const div = document.createElement('div');
-        const isOutOfStock = !product.in_stock || product.in_stock === 0;
+        const isOutOfStock = !product.in_stock || product.stock_quantity <= 0;
         div.className = `product-card glass-card fade-in ${isOutOfStock ? 'out-of-stock' : ''}`;
         div.dataset.productId = product.id;
         div.dataset.productSlug = product.slug;

@@ -92,24 +92,32 @@ document.addEventListener('DOMContentLoaded', () => {
         const modal = document.getElementById(modalId);
         if (modal) {
             modal.classList.remove('active');
-            document.body.style.overflow = '';
+            // Only restore if no other modals are active
+            const otherActive = document.querySelector('.modal-overlay.active:not(#' + modalId + ')');
+            if (!otherActive) {
+                document.body.style.overflow = '';
+            }
         }
     };
 
     window.closeAllModals = function() {
         document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+        document.body.style.overflow = '';
     };
 
     document.querySelectorAll('.modal-close').forEach(btn => {
         btn.addEventListener('click', () => {
-            btn.closest('.modal-overlay').classList.remove('active');
+            const modal = btn.closest('.modal-overlay');
+            if (modal) {
+                window.closeModal(modal.id);
+            }
         });
     });
 
     // Close on overlay click
     window.addEventListener('click', (e) => {
         if (e.target.classList.contains('modal-overlay')) {
-            e.target.classList.remove('active');
+            window.closeModal(e.target.id);
         }
     });
 
@@ -278,12 +286,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const vision = await window.opticaApi.getVision();
             if (vision && (vision.od_sphere || vision.os_sphere || vision.pd)) {
                 visionLabel.style.display = 'flex';
+                const savedRadio = document.querySelector('input[name="vision_choice"][value="saved"]');
+                if (savedRadio) savedRadio.checked = true;
             } else {
                 visionLabel.style.display = 'none';
-                document.querySelector('input[name="vision_choice"][value="none"]').checked = true;
+                const noneRadio = document.querySelector('input[name="vision_choice"][value="none"]');
+                if (noneRadio) noneRadio.checked = true;
             }
         } catch (err) {
             visionLabel.style.display = 'none';
+            const noneRadio = document.querySelector('input[name="vision_choice"][value="none"]');
+            if (noneRadio) noneRadio.checked = true;
         }
 
         openModal('buy-modal');
@@ -295,8 +308,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const addCartBtn = e.target.closest('.add-cart-btn');
         
         if (buyBtn || addCartBtn) {
-            const card = productCard || buyBtn.closest('.product-card') || addCartBtn.closest('.product-card');
+            const btn = buyBtn || addCartBtn;
+            if (btn.disabled) return; // Don't act if disabled
+
+            const card = productCard || btn.closest('.product-card');
             if (!card) return;
+
+            // Final safety check for stock
+            if (card.classList.contains('out-of-stock')) {
+                window.showToast('Товару немає в наявності 😕', true);
+                return;
+            }
 
             const product = {
                 id: parseInt(card.dataset.productId),
@@ -335,13 +357,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const product = products.find(p => p.id === productId);
 
                 if (product) {
-                    const isOutOfStock = !product.in_stock || product.in_stock === 0;
+                    const isOutOfStock = !product.in_stock || product.stock_quantity <= 0;
                     if (isOutOfStock) {
                         card.classList.add('out-of-stock');
                         const buyBtn = card.querySelector('.buy-btn');
                         if (buyBtn) {
                             buyBtn.disabled = true;
                             buyBtn.textContent = 'Немає';
+                        }
+                        const addBtn = card.querySelector('.add-cart-btn');
+                        if (addBtn) {
+                            addBtn.disabled = true;
+                            addBtn.title = 'Немає в наявності';
                         }
                         const badgeContainer = card.querySelector('.badge-container');
                         if (badgeContainer) {
@@ -370,15 +397,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="container hero-container">
                             <div class="hero-text">
                                 <h1>${b.title || 'Поглянь на світ по-новому'}</h1>
-                                <p>${b.title ? '' : 'Ексклюзивні оправи та преміальні лінзи для тих, хто не боїться виділятися.'}</p>
+                                <p>${b.subtitle || ''}</p>
                                 <div class="hero-buttons">
-                                    <a href="${b.link || 'catalog.html'}" class="btn btn-primary">Детальніше</a>
-                                    <a href="#about" class="btn btn-secondary">Про нас</a>
+                                    <a href="${b.link || 'catalog.html'}" class="btn btn-primary">${b.btn_text || 'Дивитися каталог'}</a>
+                                    ${b.btn2_text ? `<a href="${b.btn2_link || '#about'}" class="btn btn-secondary">${b.btn2_text}</a>` : ''}
                                 </div>
                             </div>
                             <div class="hero-image-wrapper">
                                 <div class="hero-glow"></div>
-                                <img src="${b.image}" alt="${b.title}" class="hero-img">
+                                <img src="${b.image}" alt="${b.title || 'Hero'}" class="hero-img">
                             </div>
                         </div>
                     </div>
@@ -390,6 +417,74 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } catch (err) { console.error('Banners load error', err); }
+    }
+
+    function renderProductCard(p) {
+        const isOutOfStock = !p.in_stock || p.stock_quantity <= 0;
+        const mainImage = (p.images && p.images.length > 0) ? p.images[0] : 'assets/logo.png';
+        const displayPrice = p.discount_price || p.price;
+        
+        return `
+            <div class="product-card fade-in-up ${isOutOfStock ? 'out-of-stock' : ''}" 
+                 data-product-id="${p.id}" 
+                 data-product-name="${p.name}" 
+                 data-product-price="${displayPrice}" 
+                 data-product-slug="${p.slug}">
+                <div class="product-img-wrapper">
+                    <img src="${mainImage}" alt="${p.name}" class="product-img">
+                    <div class="badge-container">
+                        ${p.discount_price ? `<span class="badge badge-sale">АКЦІЯ</span>` : ''}
+                        ${isOutOfStock ? `<span class="badge badge-out-of-stock">НЕМАЄ</span>` : ''}
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3>${p.name}</h3>
+                    <p class="product-desc">${p.description ? p.description.substring(0, 60) + '...' : ''}</p>
+                    <div class="product-footer">
+                        <div class="price-box">
+                            ${p.discount_price ? `<span class="old-price">₴ ${p.price}</span>` : ''}
+                            <span class="price">₴ ${displayPrice.toLocaleString('uk-UA')}</span>
+                        </div>
+                        <div style="display:flex; gap:0.5rem;">
+                            <button class="btn btn-icon buy-btn" ${isOutOfStock ? 'disabled' : ''}>${isOutOfStock ? 'Немає' : 'Купити'}</button>
+                            <button class="btn btn-outline add-cart-btn" style="padding:0 10px;" ${isOutOfStock ? 'disabled' : ''}>🛒+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    async function loadCollections() {
+        const container = document.getElementById('collections-container');
+        if (!container) return;
+
+        try {
+            // Fetch products marked for home collection (large limit to ensure we see all flagged items)
+            const resp = await window.opticaApi.getProducts({ limit: 1000 });
+            const homeProducts = resp.data.filter(p => Number(p.in_home_collection) === 1);
+            
+            if (!homeProducts || homeProducts.length === 0) {
+                container.innerHTML = '<p class="chat-placeholder" style="text-align:center; padding: 2rem; color:var(--text-secondary);">Колекція поки порожня</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="collection-block fade-in-up">
+                    <div class="product-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:2rem;">
+                        ${homeProducts.map(p => renderProductCard(p)).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Setup animations for new elements
+            const newElems = container.querySelectorAll('.fade-in-up');
+            newElems.forEach(el => appearOnScroll.observe(el));
+            
+        } catch (err) {
+            console.error('Collections load error', err);
+            container.innerHTML = '<p class="chat-placeholder">Помилка завантаження</p>';
+        }
     }
 
     async function loadPageSections() {
@@ -431,9 +526,17 @@ document.addEventListener('DOMContentLoaded', () => {
         setInterval(() => showSlide(currentSlide + 1), 5000);
     }
 
-    if (window.location.pathname === '/' || window.location.pathname.endsWith('index.html')) {
-        syncHomeStock();
+    // Initial Loaders based on element presence
+    if (document.getElementById('collections-container')) {
+        loadCollections();
+    }
+    if (document.getElementById('hero-slider')) {
         loadHeroBanners();
+    }
+    if (document.querySelectorAll('.product-card[data-product-id]').length > 0) {
+        syncHomeStock();
+    }
+    if (document.getElementById('about-content') || document.getElementById('warranty-content')) {
         loadPageSections();
     }
 
@@ -509,7 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Contact modal
-    ['contact-nav-link', 'contact-about-link'].forEach(id => {
+    ['contact-nav-link'].forEach(id => {
         document.getElementById(id)?.addEventListener('click', (e) => {
             e.preventDefault();
             openModal('contact-modal');

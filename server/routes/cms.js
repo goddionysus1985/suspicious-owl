@@ -12,10 +12,21 @@ const db = new Database(config.dbPath);
 const storage = multer.diskStorage({
     destination: 'public/assets/banners/',
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
+        let ext = path.extname(file.originalname).toLowerCase();
+        if (ext === '.jpeg') ext = '.jpg';
+        cb(null, Date.now() + ext);
     }
 });
-const upload = multer({ storage });
+
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+        cb(null, true);
+    } else {
+        cb(new Error('Дозволені лише зображення!'), false);
+    }
+};
+
+const upload = multer({ storage, fileFilter, limits: { fileSize: 10 * 1024 * 1024 } });
 
 // --- Banners ---
 router.get('/banners', (req, res) => {
@@ -27,9 +38,11 @@ router.get('/banners', (req, res) => {
 
 router.post('/banners', verifyAdmin, auditLog('CREATE_BANNER', 'banner'), upload.single('image'), (req, res) => {
     try {
-        const { title, link } = req.body;
+        const { title, subtitle, btn_text, link, btn2_text, btn2_link } = req.body;
         const image = `/assets/banners/${req.file.filename}`;
-        db.prepare('INSERT INTO banners (image, title, link) VALUES (?, ?, ?)').run(image, title, link);
+        db.prepare('INSERT INTO banners (image, title, subtitle, btn_text, link, btn2_text, btn2_link) VALUES (?, ?, ?, ?, ?, ?, ?)').run(
+            image, title, subtitle, btn_text, link, btn2_text, btn2_link
+        );
         res.status(201).json({ message: 'Банер додано' });
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -38,6 +51,29 @@ router.delete('/banners/:id', verifyAdmin, auditLog('DELETE_BANNER', 'banner'), 
     try {
         db.prepare('DELETE FROM banners WHERE id = ?').run(req.params.id);
         res.json({ message: 'Банер видалено' });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+router.put('/banners/:id', verifyAdmin, auditLog('UPDATE_BANNER', 'banner'), upload.single('image'), (req, res) => {
+    try {
+        const { title, subtitle, btn_text, link, btn2_text, btn2_link } = req.body;
+        const bannerId = req.params.id;
+        
+        if (req.file) {
+            const image = `/assets/banners/${req.file.filename}`;
+            db.prepare(`
+                UPDATE banners SET 
+                image = ?, title = ?, subtitle = ?, btn_text = ?, link = ?, btn2_text = ?, btn2_link = ?
+                WHERE id = ?
+            `).run(image, title, subtitle, btn_text, link, btn2_text, btn2_link, bannerId);
+        } else {
+            db.prepare(`
+                UPDATE banners SET 
+                title = ?, subtitle = ?, btn_text = ?, link = ?, btn2_text = ?, btn2_link = ?
+                WHERE id = ?
+            `).run(title, subtitle, btn_text, link, btn2_text, btn2_link, bannerId);
+        }
+        res.json({ message: 'Банер оновлено' });
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

@@ -40,12 +40,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             oldPriceEl.textContent = '';
         }
 
+        // Availability
+        const availEl = document.getElementById('product-availability');
+        const isOutOfStock = !p.in_stock || p.stock_quantity <= 0;
+        
+        if (isOutOfStock) {
+            availEl.innerHTML = '<span style="color: #ff4040;">🔴 Немає в наявності</span>';
+        } else {
+            const lowStock = p.stock_quantity <= 3;
+            availEl.innerHTML = `<span style="color: ${lowStock ? '#ffa500' : '#00ffff'};">🟢 В наявності: ${p.stock_quantity} шт.</span>`;
+        }
+
         // Badges
         const badges = document.getElementById('product-badges');
         badges.innerHTML = '';
         if (p.featured) badges.innerHTML += '<span class="badge badge-featured">TOP</span>';
         if (p.discount_price) badges.innerHTML += '<span class="badge badge-discount">SALE</span>';
-        if (!p.in_stock) badges.innerHTML += '<span class="badge badge-out-of-stock">НЕМАЄ В НАЯВНОСТІ</span>';
+        if (isOutOfStock) badges.innerHTML += '<span class="badge badge-out-of-stock">НЕМАЄ В НАЯВНОСТІ</span>';
 
         // Images
         const mainImg = document.getElementById('main-product-img');
@@ -72,9 +83,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Buy Button
         const buyBtn = document.getElementById('buy-now-btn');
-        if (!p.in_stock) {
+        if (isOutOfStock) {
             buyBtn.disabled = true;
-            buyBtn.textContent = 'Немає в наявності';
+            buyBtn.classList.add('disabled');
+            buyBtn.textContent = 'Тимчасово відсутній';
+            buyBtn.style.opacity = '0.5';
+            buyBtn.style.cursor = 'not-allowed';
         } else {
             buyBtn.addEventListener('click', () => {
                 if (typeof window.openCheckoutModal === 'function') {
@@ -104,15 +118,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (window.openModal) window.openModal('review-modal');
         });
 
-            document.getElementById('add-to-cart-btn')?.addEventListener('click', () => {
-                window.opticaCart.addItem({
-                    id: p.id,
-                    name: p.name,
-                    price: p.discount_price || p.price,
-                    image: (p.images && p.images[0]) || 'assets/logo.png',
-                    slug: p.slug
+        // Add to Cart Button
+        const addToCartBtn = document.getElementById('add-to-cart-btn');
+        if (addToCartBtn) {
+            if (isOutOfStock) {
+                addToCartBtn.disabled = true;
+                addToCartBtn.classList.add('disabled');
+                addToCartBtn.title = 'Немає в наявності';
+                addToCartBtn.style.opacity = '0.5';
+                addToCartBtn.style.cursor = 'not-allowed';
+            } else {
+                addToCartBtn.addEventListener('click', () => {
+                    window.opticaCart.addItem({
+                        id: p.id,
+                        name: p.name,
+                        price: p.discount_price || p.price,
+                        image: (p.images && p.images[0]) || 'assets/logo.png',
+                        slug: p.slug
+                    });
                 });
-            });
+            }
+        }
 
         document.getElementById('review-close')?.addEventListener('click', () => {
             if (window.closeModal) window.closeModal('review-modal');
@@ -177,8 +203,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             const grid = document.getElementById('related-products-grid');
             
             if (related.length > 0) {
-                grid.innerHTML = related.map(p => `
-                    <div class="product-card" 
+                grid.innerHTML = related.map(p => {
+                const isOutOfStock = !p.in_stock || p.stock_quantity <= 0;
+                return `
+                    <div class="product-card ${isOutOfStock ? 'out-of-stock' : ''}" 
                         data-product-id="${p.id}" 
                         data-product-slug="${p.slug}"
                         data-product-name="${p.name}"
@@ -186,7 +214,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="product-img-wrapper">
                             <img src="${(p.images && p.images[0]) || 'assets/logo.png'}" alt="${p.name}" class="product-img">
                             ${p.discount_price ? '<span class="badge badge-discount">SALE</span>' : ''}
-                            ${!p.in_stock ? '<span class="badge badge-out-of-stock">НЕМАЄ</span>' : ''}
+                            ${isOutOfStock ? '<span class="badge badge-out-of-stock">НЕМАЄ</span>' : ''}
                         </div>
                         <div class="product-info">
                             <h3 class="product-title">${p.name}</h3>
@@ -195,11 +223,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     ${p.discount_price ? `<span class="old-price" style="font-size:0.8rem; text-decoration:line-through; color:var(--text-secondary); margin-right:5px;">₴ ${p.price}</span>` : ''}
                                     <span class="current-price">₴ ${(p.discount_price || p.price).toLocaleString('uk-UA')}</span>
                                 </div>
-                                <button class="btn btn-icon buy-btn">➔</button>
+                                <button class="btn btn-icon buy-btn" ${isOutOfStock ? 'disabled' : ''}>➔</button>
                             </div>
                         </div>
                     </div>
-                `).join('');
+                `}).join('');
 
                 grid.querySelectorAll('.product-card').forEach(card => {
                     card.addEventListener('click', (e) => {

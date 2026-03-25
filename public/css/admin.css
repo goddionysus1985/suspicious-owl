@@ -162,6 +162,15 @@
     text-align: left;
 }
 
+.admin-table input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--accent-glow-alt);
+    margin: 0;
+    vertical-align: middle;
+}
+
 .admin-table th {
     padding: 1.2rem 1.5rem;
     background: rgba(255, 255, 255, 0.03);
@@ -871,4 +880,36 @@
     .sandbox-preview {
         height: 600px;
     }
+}
+/* Collection Products Editor */
+.collection-products-editor {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+#prod-select-list .checkbox-group {
+    padding: 0.8rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.2s ease;
+}
+
+#prod-select-list .checkbox-group:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.image-preview-placeholder {
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.image-preview-placeholder img {
+    max-height: 100%;
+    width: auto;
 }

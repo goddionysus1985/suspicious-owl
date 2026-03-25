@@ -55,6 +55,7 @@ db.exec(`
     in_stock BOOLEAN DEFAULT 1,
     stock_quantity INTEGER DEFAULT 0,
     featured BOOLEAN DEFAULT 0,
+    in_home_collection BOOLEAN DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
@@ -76,7 +77,7 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS order_items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     order_id INTEGER NOT NULL,
-    product_id INTEGER NOT NULL,
+    product_id INTEGER, -- Allowed to be NULL if product deleted
     quantity INTEGER DEFAULT 1,
     price_at_purchase REAL NOT NULL,
     custom_params TEXT, -- JSON (e.g., vision data at purchase time)
@@ -120,15 +121,19 @@ db.exec(`
     comment TEXT,
     is_approved BOOLEAN DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(user_id) REFERENCES users(id),
-    FOREIGN KEY(product_id) REFERENCES products(id)
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE CASCADE
   );
 
   CREATE TABLE IF NOT EXISTS banners (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     image TEXT NOT NULL,
     title TEXT,
-    link TEXT,
+    subtitle TEXT,
+    btn_text TEXT,
+    btn2_text TEXT,
+    btn2_link TEXT,
+    link TEXT, -- as btn1_link
     is_active BOOLEAN DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
@@ -149,6 +154,25 @@ db.exec(`
     details TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS collections (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
+    description TEXT,
+    image TEXT,
+    is_active BOOLEAN DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS collection_products (
+    collection_id INTEGER NOT NULL,
+    product_id INTEGER NOT NULL,
+    sort_order INTEGER DEFAULT 0,
+    PRIMARY KEY (collection_id, product_id),
+    FOREIGN KEY (collection_id) REFERENCES collections (id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE
   );
 `);
 

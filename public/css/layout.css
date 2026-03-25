@@ -289,3 +289,35 @@
     color: var(--accent-glow-alt);
 }
 
+/* Dynamic Collections Styles */
+.collection-block {
+    padding: 4rem 0;
+    position: relative;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.collection-block:last-child {
+    border-bottom: none;
+}
+
+.collection-header {
+    margin-bottom: 3rem;
+    text-align: center;
+}
+
+.collection-header h3 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--accent-glow-alt), #fff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.collection-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+}

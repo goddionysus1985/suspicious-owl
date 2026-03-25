@@ -21,13 +21,25 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'prod-' + uniqueSuffix + path.extname(file.originalname));
+        let ext = path.extname(file.originalname).toLowerCase();
+        if (ext === '.jpeg') ext = '.jpg';
+        cb(null, 'prod-' + uniqueSuffix + ext);
     }
 });
-const upload = multer({ storage });
+
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+        cb(null, true);
+    } else {
+        cb(new Error('Дозволені лише зображення!'), false);
+    }
+};
+
+const upload = multer({ storage, fileFilter, limits: { fileSize: 10 * 1024 * 1024 } }); // Limit: 10MB
 
 // Отримати всі товари (з підтримкою фільтрів)
 router.get('/', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     try {
         const { category, min_price, max_price, sort, limit = 20, offset = 0 } = req.query;
         let query = 'SELECT * FROM products WHERE 1=1';
@@ -90,7 +102,7 @@ router.get('/:slug', (req, res) => {
 // ДОДАТИ ТОВАР (Тільки Admin)
 router.post('/', verifyAdmin, auditLog('CREATE_PRODUCT', 'product'), upload.array('images', 5), (req, res) => {
     try {
-        const { name, slug, description, price, discount_price, category, brand, gender, in_stock, featured } = req.body;
+        const { name, slug, description, price, discount_price, category, brand, gender, in_stock, featured, in_home_collection } = req.body;
         
         if (!name || !slug || !price) {
             return res.status(400).json({ error: 'Назва, slug та ціна обов\'язкові' });
@@ -104,8 +116,8 @@ router.post('/', verifyAdmin, auditLog('CREATE_PRODUCT', 'product'), upload.arra
 
         const stmt = db.prepare(`
             INSERT INTO products 
-            (name, slug, description, price, discount_price, category, brand, gender, images, in_stock, stock_quantity, featured) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (name, slug, description, price, discount_price, category, brand, gender, images, in_stock, stock_quantity, featured, in_home_collection) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `);
         
         const info = stmt.run(
@@ -113,9 +125,10 @@ router.post('/', verifyAdmin, auditLog('CREATE_PRODUCT', 'product'), upload.arra
             discount_price ? Number(discount_price) : null, 
             category || null, brand || null, gender || 'unisex', 
             JSON.stringify(imagePaths), 
-            in_stock !== undefined ? in_stock : 1, 
+            in_stock !== undefined ? Number(in_stock) : 1, 
             Number(req.body.stock_quantity) || 0,
-            featured || 0
+            featured ? Number(featured) : 0,
+            in_home_collection ? Number(in_home_collection) : 0
         );
 
         res.status(201).json({ message: 'Товар додано', id: info.lastInsertRowid });
@@ -129,7 +142,7 @@ router.post('/', verifyAdmin, auditLog('CREATE_PRODUCT', 'product'), upload.arra
 router.put('/:id', verifyAdmin, auditLog('UPDATE_PRODUCT', 'product'), upload.array('images', 5), (req, res) => {
     try {
         const { id } = req.params;
-        const { name, slug, description, price, discount_price, category, brand, gender, in_stock, featured, existing_images } = req.body;
+        const { name, slug, description, price, discount_price, category, brand, gender, in_stock, featured, in_home_collection, existing_images } = req.body;
 
         const product = db.prepare('SELECT images FROM products WHERE id = ?').get(id);
         if (!product) return res.status(404).json({ error: 'Товар не знайдено' });
@@ -139,16 +152,24 @@ router.put('/:id', verifyAdmin, auditLog('UPDATE_PRODUCT', 'product'), upload.ar
         if (existing_images) {
             finalImages = Array.isArray(existing_images) ? existing_images : [existing_images];
         }
-        if (req.files) {
+        if (req.files && req.files.length > 0) {
             const newImages = req.files.map(f => `/uploads/products/${f.filename}`);
             finalImages = [...finalImages, ...newImages];
         }
 
+        // SAFETY: If we got literally nothing (no existing list, no new files), 
+        // fallback to keeping exactly what the product currently has.
+        if (finalImages.length === 0 && !existing_images && (!req.files || req.files.length === 0)) {
+            const currentObj = db.prepare('SELECT images FROM products WHERE id = ?').get(id);
+            if (currentObj && currentObj.images) {
+                finalImages = JSON.parse(currentObj.images);
+            }
+        }
         const stmt = db.prepare(`
             UPDATE products SET 
             name = ?, slug = ?, description = ?, price = ?, discount_price = ?, 
             category = ?, brand = ?, gender = ?, images = ?, in_stock = ?, 
-            stock_quantity = ?, featured = ?
+            stock_quantity = ?, featured = ?, in_home_collection = ?
             WHERE id = ?
         `);
         
@@ -157,9 +178,10 @@ router.put('/:id', verifyAdmin, auditLog('UPDATE_PRODUCT', 'product'), upload.ar
             discount_price ? Number(discount_price) : null, 
             category || null, brand || null, gender || 'unisex', 
             JSON.stringify(finalImages), 
-            in_stock !== undefined ? in_stock : 1, 
+            in_stock !== undefined ? Number(in_stock) : 1, 
             Number(req.body.stock_quantity) || 0,
-            featured || 0,
+            featured ? Number(featured) : 0,
+            in_home_collection ? Number(in_home_collection) : 0,
             id
         );
 

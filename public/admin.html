@@ -68,6 +68,15 @@
 
             <!-- DASHBOARD TAB -->
             <section id="dashboard-tab" class="admin-tab active fade-in-up">
+                <div class="admin-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2>Панель керування</h2>
+                    <select id="dash-period-select" class="form-control" style="width: auto;">
+                        <option value="7days">За останній тиждень</option>
+                        <option value="30days">За останні 30 днів</option>
+                        <option value="6months">За останні 6 місяців</option>
+                        <option value="1year">За останній рік</option>
+                    </select>
+                </div>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <span>Наявність (Товари)</span>
@@ -114,6 +123,7 @@
                     <table class="admin-table">
                         <thead>
                             <tr>
+                                <th style="width: 40px;">H</th>
                                 <th>Фото</th>
                                 <th>Назва</th>
                                 <th>Ціна</th>
@@ -367,6 +377,7 @@
                             <option value="about">Про нас</option>
                             <option value="warranty">Гарантія</option>
                             <option value="contact">Контакти</option>
+                            <option value="home-hero">Головний банер (Hero)</option>
                         </select>
                         <button id="save-page-btn" class="btn btn-primary">Зберегти зміни</button>
                     </div>
@@ -391,13 +402,52 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="form-group" style="margin-bottom: 0.5rem;">
+                        <div class="form-group" style="margin-bottom: 0.5rem;" id="standard-page-title-group">
                             <label>Заголовок сторінки</label>
                             <input type="text" id="page-title" class="form-control" placeholder="Введіть заголовок...">
                         </div>
-                        <div class="form-group" style="flex-grow: 1; margin-bottom: 0;">
+                        <div class="form-group" style="flex-grow: 1; margin-bottom: 0;" id="standard-page-content-group">
                             <label>HTML Контент</label>
                             <textarea id="page-content" class="form-control" style="height: 100%; min-height: 400px; font-family: 'Courier New', monospace; font-size: 0.9rem; line-height: 1.5;"></textarea>
+                        </div>
+
+                        <!-- Specialized Hero Editor UI -->
+                        <div id="hero-editor-ui" style="display: none; flex-direction: column; gap: 1rem;">
+                            <div class="form-group">
+                                <label>Головний заголовок</label>
+                                <input type="text" id="hero-title" class="form-control" placeholder="Поглянь на світ по-новому">
+                            </div>
+                            <div class="form-group">
+                                <label>Підзаголовок / Опис</label>
+                                <textarea id="hero-subtitle" class="form-control" rows="3" placeholder="Ексклюзивні оправи..."></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group flex-1">
+                                    <label>Кнопка 1 (Текст)</label>
+                                    <input type="text" id="hero-btn1-text" class="form-control" placeholder="Дивитися каталог">
+                                </div>
+                                <div class="form-group flex-1">
+                                    <label>Кнопка 1 (Посилання)</label>
+                                    <input type="text" id="hero-btn1-link" class="form-control" placeholder="catalog.html">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group flex-1">
+                                    <label>Кнопка 2 (Текст)</label>
+                                    <input type="text" id="hero-btn2-text" class="form-control" placeholder="Дізнатися більше">
+                                </div>
+                                <div class="form-group flex-1">
+                                    <label>Кнопка 2 (Посилання)</label>
+                                    <input type="text" id="hero-btn2-link" class="form-control" placeholder="#about">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Фонове зображення</label>
+                                <input type="file" id="hero-image" accept="image/*" class="form-control">
+                                <div id="hero-preview" class="image-preview-placeholder" style="margin-top: 10px; height: 120px; border: 1px dashed var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                    <span style="color: var(--text-secondary); font-size: 0.8rem;">Preview</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -413,6 +463,8 @@
                     </div>
                 </div>
             </section>
+
+            <!-- Collections Tab Removed -->
 
             <!-- Logs Tab -->
             <section id="logs-tab" class="admin-tab fade-in-up" style="display: none;">
@@ -505,6 +557,10 @@
                         <input type="checkbox" id="prod-featured">
                         <label for="prod-featured">Рекомендуємо (Топ)</label>
                     </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="prod-home">
+                        <label for="prod-home">На головну (Колекція)</label>
+                    </div>
                 </div>
 
                 <div class="form-group" style="margin-top: 1rem;">
@@ -514,6 +570,78 @@
 
                 <button type="submit" class="btn btn-primary full-width" style="margin-top: 1.5rem;">Зберегти товар</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Collection Modal -->
+    <div class="modal-overlay" id="collection-modal">
+        <div class="modal-container fade-in-up" style="max-width: 800px;">
+            <button class="modal-close" id="collection-modal-close">&times;</button>
+            <form id="collection-form">
+                <input type="hidden" id="coll-id">
+                <h3 id="collection-modal-title">Створити колекцію</h3>
+                
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label>Назва</label>
+                        <input type="text" id="coll-name" required>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Slug (URL)</label>
+                        <input type="text" id="coll-slug" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Опис</label>
+                    <textarea id="coll-desc" rows="2" class="form-control"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Обкладинка</label>
+                    <input type="file" id="coll-image" accept="image/*" class="form-control">
+                    <div id="coll-preview" class="image-preview-placeholder" style="margin-top: 10px; height: 100px; border: 1px dashed var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        <span style="color: var(--text-secondary); font-size: 0.8rem;">Preview</span>
+                    </div>
+                </div>
+
+                <div class="collection-products-editor" style="margin-top: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <label>Товари в колекції</label>
+                        <button type="button" class="btn btn-outline btn-sm" id="btn-add-prod-to-coll">+ Додати товар</button>
+                    </div>
+                    <div class="admin-table-wrapper" style="max-height: 300px; overflow-y: auto;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Товар</th>
+                                    <th style="width: 50px;">Вид.</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coll-products-tbody">
+                                <!-- JS will populate items being added -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary full-width" style="margin-top: 1.5rem;">Зберегти колекцію</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Product Selection Modal for Collections -->
+    <div class="modal-overlay" id="product-select-modal" style="z-index: 3000;">
+        <div class="modal-container fade-in-up" style="max-width: 500px;">
+            <button class="modal-close" id="product-select-close">&times;</button>
+            <h3>Оберіть товари</h3>
+            <div class="form-group">
+                <input type="text" id="prod-select-search" class="form-control" placeholder="Пошук товapa...">
+            </div>
+            <div style="max-height: 400px; overflow-y: auto; margin-top: 1rem;" id="prod-select-list">
+                <!-- List of products with checkboxes -->
+            </div>
+            <button type="button" class="btn btn-primary full-width" style="margin-top: 1.5rem;" id="btn-confirm-prod-select">Додати обрані</button>
         </div>
     </div>
 
@@ -571,8 +699,28 @@
                     <input type="text" id="banner-title" class="form-control">
                 </div>
                 <div class="form-group">
-                    <label>Посилання (URL)</label>
+                    <label>Посилання (btn 1)</label>
                     <input type="text" id="banner-link" class="form-control" placeholder="/catalog.html">
+                </div>
+                <div class="form-group">
+                    <label>Підзаголовок</label>
+                    <textarea id="banner-subtitle" class="form-control" rows="2"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label>Текст кнопки 1</label>
+                        <input type="text" id="banner-btn-text" class="form-control">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label>Текст кнопки 2</label>
+                        <input type="text" id="banner-btn2-text" class="form-control">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Посилання кнопка 2</label>
+                        <input type="text" id="banner-btn2-link" class="form-control">
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary full-width">Зберегти</button>
             </form>
@@ -632,6 +780,7 @@
     <!-- Toast Notification -->
     <div class="toast" id="toast"></div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/admin.js"></script>
 </body>
 </html>

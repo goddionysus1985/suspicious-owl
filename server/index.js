@@ -27,6 +27,7 @@ const reviewRoutes = require('./routes/reviews');
 const cmsRoutes = require('./routes/cms');
 const logRoutes = require('./routes/logs');
 
+
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
